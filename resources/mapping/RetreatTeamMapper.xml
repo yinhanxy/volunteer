@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.RetreatTeamMapper" >
+  
+  	<resultMap id="retreatTeamViewMap" type="com.topstar.volunteer.model.RetreatTeamView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TEAM" property="serviceTeam" jdbcType="INTEGER" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="CERT_DATE" property="certTime" jdbcType="TIMESTAMP" />
+	    <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP" />
+	    <result column="RETREAT_REASON" property="retreatReason" jdbcType="VARCHAR" />
+	    <result column="DEAL_USER" property="dealUser" jdbcType="VARCHAR" />
+	    <result column="DEAL_TIME" property="dealTime" jdbcType="TIMESTAMP" />
+	    <result column="DEAL_RESULT" property="dealStatus" jdbcType="VARCHAR" />
+	    <result column="DEAL_OPINION" property="dealOpinion" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serTeamName" jdbcType="VARCHAR" />
+	    <result column="DEAL_ID" property="dealId" jdbcType="INTEGER" />
+	    <result column="SERVICE_HOUR" property="serviceHour" jdbcType="INTEGER" />
+	    <result column="R_ID" property="rId" jdbcType="INTEGER" />
+	</resultMap>
+  	
+  	<resultMap id="retreatTeamDealMap" type="com.topstar.volunteer.entity.RetreatTeamDeal" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    
+	    <result column="APPLY_ID" property="applyId" jdbcType="INTEGER" />
+	    <result column="DEAL_USER" property="dealUser" jdbcType="VARCHAR" />
+	    <result column="DEAL_TIME" property="dealTime" jdbcType="TIMESTAMP" />
+	    <result column="DEAL_RESULT" property="dealResult" jdbcType="VARCHAR" />
+	    <result column="DEAL_OPINION" property="dealOpinion" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<!-- 根据志愿者实体字段的值过滤查询志愿者退队申请信息列表 -->
+	<select id="findRetreatTeamApplysByEntity" resultMap="retreatTeamViewMap">
+		select vol.id ,ra.id R_ID,vol.user_name,vol.real_name,vol.idcard,vol.mobile,st.name,ra.apply_time,rr.deal_user,rr.deal_result
+ from volunteer vol right join retreat_apply ra on vol.id=ra.volunteer_id inner join retreat_result rr on ra.id= rr.apply_id
+ left join serteam st on vol.service_team=st.id
+		<if test="volunteer != null">
+		<where>
+			<if test="volunteer.userName != null and volunteer.userName != ''">
+				<bind name="p_userName" value="'%' + volunteer.userName + '%'" />
+	        		and vol.user_name like #{p_userName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and vol.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and vol.mobile  like #{p_mobile }
+	        </if>
+	        <if test="volunteer.dealReasult != null and volunteer.dealReasult !='' ">
+       			<choose>
+	        	<when test="volunteer.dealReasult=='1'.toString()">
+	        		and rr.deal_result = '1'
+	        	</when>
+	        	<when test="volunteer.dealReasult=='2'.toString()">
+	        		and  rr.deal_result is null
+	        	</when>
+	        	<when test="volunteer.dealReasult=='0'.toString()">
+	        		and rr.deal_result = '0'
+	        	</when>
+		        </choose>
+        	</if>
+	        <if test="volunteer.teamName != null and volunteer.teamName!= ''">
+				<bind name="p_teamName" value="volunteer.teamName" />
+	        		and st.name = #{p_teamName}
+	        </if>
+	        <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and st.org_id = #{p_orgId}
+        	</if>
+	        <if test="volunteer.curOrgId != null and volunteer.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="volunteer.curOrgId" />
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="volunteer.serviceTeam != null and volunteer.serviceTeam !=-1 ">
+        			<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+        			and vol.id in(select id from volunteer where service_team = #{p_serviceTeam})
+        	</if>
+        </where>
+        </if>
+	</select>
+	
+	<!-- 根据志愿者ID查询志愿者退队相关信息 -->
+	<select id="getRetreatTeamByVolunteerId" resultMap="retreatTeamViewMap" parameterType="java.lang.Long">
+		select vol.id,rres.id DEAL_ID,vol.user_name,real_name,vol.idcard,vol.sex,vol.birthday,vol.reg_time,vol.mobile,vol.service_hour,st.name,ra.id r_id, ra.apply_time,ra.retreat_reason,rres.deal_user,rres.deal_time,cf.cert_date,rres.id DEAL_ID,rres.deal_result,rres.deal_opinion from volunteer vol inner join retreat_apply ra 
+on vol.id=ra.volunteer_id inner join retreat_result rres on ra.id=rres.apply_id inner join serteam st on vol.service_team=st.id left join (select * from certification where is_use=0) cf on cf.volunteer_id=vol.id  where ra.id=#{volunteerId} 
+	</select>
+	
+	<!-- 根据志愿者ID查询指定志愿者退队申请信息 -->
+	<select id="findRetreatTeamApplyByVolunteerId" resultMap="retreatTeamViewMap" parameterType="java.lang.Long">
+		select v.ID, v.USER_NAME, REAL_NAME,SEX, v.IDCARD, BIRTHDAY,v.SERVICE_TEAM, 
+	    MOBILE, EMAIL, REG_TIME,apply.target_team,apply.apply_time,apply.turn_property,apply.turn_reason
+		from volunteer v right outer join turn_apply apply on v.id=apply.volunteer_id  where apply.volunteer_id=#{volunteerId} 
+	</select>
+	
+	<!-- 根据志愿者ID查询指定志愿者退队申请处理信息 -->
+	<select id="findRetreatTeamResultByVolunteerId" resultMap="retreatTeamDealMap" parameterType="java.lang.Long">
+		select r.id,r.apply_id,r.deal_user,r.deal_time,r.deal_result,r.deal_opinion
+		from  retreat_apply apply left join retreat_result r on apply.id=r.apply_id where apply.volunteer_id=#{volunteerId} 
+	</select>
+</mapper>

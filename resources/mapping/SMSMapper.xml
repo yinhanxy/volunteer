@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.SMSMapper" >
+  <resultMap id="SMSMap" type="com.topstar.volunteer.entity.SMS" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="SEND_TIME" property="sendTime" jdbcType="TIMESTAMP" />
+    <result column="EXPIRE_TIME" property="expireTime" jdbcType="TIMESTAMP" />
+    <result column="EXPIRED" property="expired" jdbcType="INTEGER" />
+    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+    <result column="VOLNAME" property="volName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, USER_ID, TYPE, CONTENT, SEND_TIME, EXPIRE_TIME, EXPIRED, MOBILE
+  </sql>
+  
+  <!-- 查询验证码列表 -->
+  <select id="getSMSLists" resultMap="SMSMap">
+	select sms.id, sms.content,sms.type,sms.send_time,sms.expire_time,sms.mobile,vol.user_name VOLNAME from sms inner join volunteer vol on sms.mobile=vol.mobile
+  </select>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.CheckTimeMapper" >
+  
+  <resultMap id="checkTimeMap" type="com.topstar.volunteer.entity.CheckTime" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="YEAR" property="year" jdbcType="VARCHAR" />
+    <result column="START_TIME" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="END_TIME" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="CREATE_USER" property="crtUser" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="crtTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <select id="findByEntity" resultMap="checkTimeMap" parameterType="com.topstar.volunteer.entity.CheckTime">
+		select ID,YEAR,START_TIME,END_TIME,CREATE_USER,CREATE_TIME 
+		from TIME_LIMIT
+		<if test="checkTime != null">
+			<where>
+				<if test="checkTime.year!= null and checkTime.year!=-1">
+					<bind name="p_year" value="'%' + checkTime.year+ '%'" />
+		        		and YEAR LIKE #{p_year}
+		        </if>
+        	</where>
+			order by CREATE_TIME DESC
+		</if>
+	</select>
+	
+	<select id="allowCertYearCheck" resultType="java.lang.String">
+		select YEAR from TIME_LIMIT 
+			where YEAR=EXTRACT(year FROM sysdate) and  sysdate > START_TIME and sysdate &lt; END_TIME 
+				and not exists (select cc.check_year from cert_check cc where cc.check_year=EXTRACT(year FROM sysdate) and cc.CERT_ID=#{certId})
+	</select>
+</mapper>

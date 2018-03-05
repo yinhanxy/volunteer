@@ -1,0 +1,372 @@
+package com.topstar.volunteer.service.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageInfo;
+import com.topstar.volunteer.dao.AreaDao;
+import com.topstar.volunteer.dao.SerTeamDao;
+import com.topstar.volunteer.entity.Area;
+import com.topstar.volunteer.entity.Org;
+import com.topstar.volunteer.entity.OrgUser;
+import com.topstar.volunteer.entity.SerTeam;
+import com.topstar.volunteer.exception.TPSException;
+import com.topstar.volunteer.model.BaseUser;
+import com.topstar.volunteer.model.Statistics;
+import com.topstar.volunteer.service.OrgService;
+import com.topstar.volunteer.service.OrgUserService;
+import com.topstar.volunteer.service.SerTeamService;
+import com.topstar.volunteer.shiro.session.ShiroSessionMgr;
+import com.topstar.volunteer.util.ConfigUtils;
+import com.topstar.volunteer.util.FileUtils;
+
+import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
+
+@Service
+public class SerTeamServiceImpl extends BaseServiceImpl<SerTeam> implements SerTeamService {
+
+	private static Logger logger = LoggerFactory.getLogger(SerTeamServiceImpl.class);
+
+	@Autowired
+	private SerTeamDao serTeamDao;
+
+	@Autowired
+	private OrgUserService orgUserService;
+
+	@Autowired
+	private OrgService orgService;
+	
+	@Autowired
+	private AreaDao areaDao;
+
+	@Override
+	public PageInfo<SerTeam> findByEntity(SerTeam serTeam, String orderBy, int page, int rows) {
+
+		PageInfo<SerTeam> result = null;
+		// 得到当前的登录用户
+		BaseUser user = ShiroSessionMgr.getLoginUser();
+		// 判断用户是不是超级管理员
+		boolean isAdmin = user.isAdmin();
+		if (isAdmin) {
+			// 如果是超级管理员，可以看到所有培训记录.
+			result = serTeamDao.findByEntity(serTeam, orderBy, page, rows);
+		} else {
+			// 如果不是超级管理员。获取用户所在的机构，（机构分为业务机构和管理机构）
+			OrgUser orgUser = orgUserService.getOrgUserByUserId(user.getId());
+			// 如果普通用户没有机构，看不到数据。
+			if (orgUser != null) {
+				// 获取组织机构Id
+				Long key = orgUser.getOrgId();
+				// 得到org对象
+				Org org = orgService.selectByKey(key);
+				// 获取机构类型
+				Integer orgType = org.getType();
+				// 获取机构级别
+				Integer grade = org.getGrade();
+				if (orgType == 1) {
+					// 如果是管理机构，可以看到所管辖的所有机构的发布的数据。比如是文化厅的，可以看到所有数据。如果是武汉市文化局的，可以看到本市的所有数据。如果是XXX县的文化局，可以看到本县的数据。
+					if (grade == 1) {
+						// 如果是省级管理机构，可以看到所有培训记录.
+						result = serTeamDao.findByEntity(serTeam, orderBy, page, rows);
+					} else {
+						serTeam.setCurOrgId(key);
+						result = serTeamDao.findByEntity(serTeam, orderBy, page, rows);
+					}
+				} else {
+					// 如果是业务机构，只能看到自己机构的数据。比如：如果是湖北省图书馆的，只能看到图书馆的数据。
+					serTeam.setOrgId(key);
+					result = serTeamDao.findByEntity(serTeam, orderBy, page, rows);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * 添加服务队
+	 */
+	@Override
+	public boolean addSerTeam(SerTeam serTeam) {
+		if (serTeam != null) {
+			int addRow = insert(serTeam);
+			if (addRow > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public int existsWithSerTeamName(String name, String excludeKey) {
+		Example example = new Example(SerTeam.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("name", name);
+		if (StringUtils.isNotEmpty(excludeKey)) {
+			criteria.andNotEqualTo("id", excludeKey);
+		}
+		criteria.andEqualTo("status", 1);
+		List<SerTeam> serTeam = selectByExample(example);
+		if (serTeam != null && serTeam.size() != 0) {
+			return 1;
+		}
+		return 0;
+	}
+
+	@Override
+	public boolean deleteSerTeamKeys(long[] serTeamKeys) {
+		if (serTeamKeys != null && serTeamKeys.length > 0) {
+			SerTeam serTeam = new SerTeam();
+			int rows = serTeamKeys.length;
+			int flag = 0;
+			for (int i = 0; i < serTeamKeys.length; i++) {
+				serTeam.setId(serTeamKeys[i]);
+				serTeam.setStatus(0);
+				flag = updateNotNull(serTeam);
+				if (flag > 0) {
+					rows--;
+				}
+			}
+			if (rows == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateSerTeam(SerTeam serTeam) throws TPSException {
+		//临时文件路径
+		String temporary= ConfigUtils.getConfigContentByName("PIC_TEMPORARY_PATH");
+		//保存路径
+		String storage = ConfigUtils.getConfigContentByName("UPLOADPATH");
+		if (serTeam != null && serTeam.getId() != null) {
+			int updateRow = 0;
+			//得到数据库中的头像地址
+			SerTeam preSerTeam=serTeamDao.selectByKey(serTeam.getId());
+			String preavatarurl=preSerTeam.getAvatarUrl();
+			//修改后的头像地址
+			String avatarurl= serTeam.getAvatarUrl();
+			if (preavatarurl==null) {
+				 //将修改后的图片从临时路径复制到保存路径下
+			    FileUtils.copyFile(temporary+File.separator+avatarurl, storage+File.separator+avatarurl);
+			}else{
+				if (!preavatarurl.equals(avatarurl)) {
+					//得到修改头像之前的头像地址
+					String path=storage+File.separator+preSerTeam.getAvatarUrl();
+					//删除之前的头像文件
+				    FileUtils.deleteFiles(path);
+				    //将修改后的图片从临时路径复制到保存路径下
+				    FileUtils.copyFile(temporary+File.separator+avatarurl, storage+File.separator+avatarurl);
+				}
+			}
+			updateRow = updateNotNull(serTeam);
+			if (updateRow > 0) {
+				return true;
+			}
+		} else {
+			throw new TPSException("更新的服务队信息参数不合法");
+		}
+		return false;
+	}
+
+	@Override
+	public boolean judgeAuthority(SerTeam serTeam) throws TPSException {
+		boolean result = false;
+		if (serTeam != null && serTeam.getId() != null) {
+			// 得到当前的登录用户
+			BaseUser user = ShiroSessionMgr.getLoginUser();
+			// 判断用户是不是超级管理员
+			boolean isAdmin = user.isAdmin();
+			if (isAdmin) {
+				// 如果是超级管理员，可以进行操作.
+				result = true;
+			} else {
+				// 如果不是超级管理员。获取用户所在的机构，（机构分为业务机构和管理机构）
+				OrgUser orgUser = orgUserService.getOrgUserByUserId(user.getId());
+				// 如果普通用户没有机构，不能修改。
+				if (orgUser != null) {
+					// 获取组织机构Id
+					Long key = orgUser.getOrgId();
+					// 得到org对象
+					Org org = orgService.selectByKey(key);
+					// 获取机构类型
+					Integer orgType = org.getType();
+					if (orgType == 1) {
+						// 如果是管理机构
+						List<Long> orgIdList = orgService.getOrgIdLists(key);
+						if (orgIdList.contains(serTeam.getOrgId())) {
+							result = true;
+						}
+					} else {
+						// 如果是业务机构,判断用户的组织机构Id和需修改的服务队机构Id
+						Long orgId = serTeam.getOrgId();
+						if (key.equals(orgId) ) {
+							result = true;
+						}
+					}
+				}
+			}
+		} else {
+			throw new TPSException("传入的服务队信息参数不合法");
+		}
+		return result;
+	}
+
+	@Override
+	public List<SerTeam> getSerTeamName(Long orgId) {
+		return serTeamDao.getSerTeamName(orgId);
+	}
+
+	@Override
+	public List<Statistics> stsServiceShow() {
+		List<Statistics> res= null;
+		// 得到当前的登录用户
+		BaseUser user = ShiroSessionMgr.getLoginUser();
+		// 判断用户是不是超级管理员
+		boolean isAdmin = user.isAdmin();
+		if (isAdmin) {
+			//如果是超级管理员，可以看到所有一级区域的服务队数量
+			res=returnSerTeamNum();
+		}
+		else{
+			// 如果不是超级管理员。获取用户所在的机构，（机构分为业务机构和管理机构）
+			OrgUser orgUser = orgUserService.getOrgUserByUserId(user.getId());
+			// 如果普通用户没有机构，看不到数据。
+			if (orgUser != null) {
+				// 获取组织机构Id
+				Long key = orgUser.getOrgId();
+				// 得到org对象
+				Org org = orgService.selectByKey(key);
+				// 获取机构类型
+				Integer orgType = org.getType();
+				// 获取机构级别
+				Integer grade = org.getGrade();
+				if (orgType == 1) {
+					// 如果是管理机构
+					if (grade == 1) {
+						// 如果是省级管理机构，可以看到所有看到所有一级区域的服务队数量.
+						res=returnSerTeamNum();
+					}else{
+						Statistics statistics = new Statistics();
+						statistics.setCurOrgId(key);
+						res=serTeamDao.getSerByArea(statistics);
+					}
+				}else{
+					// 如果是业务机构
+//					res= new ArrayList<Statistics>();
+//					Statistics statistics = new Statistics();
+//					statistics.setIstreatAgency(true);
+//					res.add(statistics);
+					Statistics statistics = new Statistics();
+					statistics.setCurOrgId(key);
+					res=serTeamDao.getSerByArea(statistics);
+				}
+				
+			}
+		}
+		
+		return res;
+	}
+
+	@Override
+	public List<Statistics> returnSerTeamNum() {
+		List<Statistics> res= new ArrayList<Statistics>();
+		List<Statistics> countyList= null;
+		//城市名称
+		String cityName="";
+		//城市区域编码
+		String cityCode="";
+		//区,县级区域编码
+		String countyCode="";
+		//得到需匹配的市级名称及区域编码
+		List<Area> cityList= areaDao.getAreas();
+		Statistics statistics = new Statistics();
+		//得到所有的区级服务队信息集合
+		countyList=serTeamDao.getSerByArea(statistics);
+		for (Area area : cityList) {
+			//志愿者人数
+			int serTeamNum=0;
+			cityName=area.getName();
+			cityCode=area.getCode().substring(0,4);
+			for (Statistics stas : countyList) {
+				countyCode=stas.getAreaCode().substring(0,4);
+				if (cityCode.equals(countyCode)) {
+					serTeamNum+=stas.getSerTeamNum();
+				}
+			}
+			Statistics scs = new Statistics();
+			scs.setAreaName(cityName);
+			scs.setSerTeamNum(serTeamNum);
+			res.add(scs);
+		}
+		return res;
+	}
+
+	@Override
+	public List<Statistics> getNameAndHour() {
+		List<Statistics> res=null;
+		Statistics statistics = new Statistics();
+		// 得到当前的登录用户
+		BaseUser user = ShiroSessionMgr.getLoginUser();
+		// 判断用户是不是超级管理员
+		boolean isAdmin = user.isAdmin();
+		if (isAdmin) {
+			//如果是超级管理员，可以看到所有的服务队及其服务时长
+			res=serTeamDao.getNameAndHour(statistics);
+		}
+		else{
+			// 如果不是超级管理员。获取用户所在的机构，（机构分为业务机构和管理机构）
+			OrgUser orgUser = orgUserService.getOrgUserByUserId(user.getId());
+			// 如果普通用户没有机构，看不到数据。
+			if (orgUser != null) {
+				// 获取组织机构Id
+				Long key = orgUser.getOrgId();
+				// 得到org对象
+				Org org = orgService.selectByKey(key);
+				// 获取机构类型
+				Integer orgType = org.getType();
+				// 获取机构级别
+				Integer grade = org.getGrade();
+				if (orgType == 1) {
+					// 如果是管理机构
+					if (grade == 1) {
+						// 如果是省级管理机构，可以看到所有的服务队及其服务时长.
+						res=serTeamDao.getNameAndHour(statistics);
+					}else{
+						statistics.setCurOrgId(key);
+						res=serTeamDao.getNameAndHour(statistics);
+					}
+				}
+				else{
+					// 如果是业务机构,可以看到本机构下的服务队服务队及其服务时长
+					statistics.setOrgId(key);
+					res=serTeamDao.getNameAndHour(statistics);
+				}
+			}
+		}
+		
+		return res;
+	}
+
+	@Override
+	public boolean judgeSerByOrg(Long orgId) {
+		boolean res= false;
+		if (orgId!=null && orgId>0) {
+			int judgeRes=serTeamDao.judgeSerByOrg(orgId);
+			if (judgeRes>0) {
+				res=true;
+			}
+		}
+		return res;
+	}
+	
+}

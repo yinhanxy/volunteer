@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.ChannelMapper" >
+  
+	<resultMap id="channelMap" type="com.topstar.volunteer.entity.Channel" >
+	  <id column="ID" property="id" jdbcType="INTEGER" />
+	  <result column="SITE_ID" property="siteId" jdbcType="INTEGER" />
+	  <result column="PARENT_ID" property="parentId" jdbcType="INTEGER" />
+	  <result column="CHNL_NAME" property="chnlName" jdbcType="VARCHAR" />
+	  <result column="CHNL_DESC" property="chnlDesc" jdbcType="VARCHAR" />
+	  <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+	  <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+	  <result column="OPER_USER" property="operUser" jdbcType="VARCHAR" />
+	  <result column="OPER_TIME" property="operTime" jdbcType="TIMESTAMP" />
+	  <result column="STATUS" property="status" jdbcType="INTEGER" />
+	  <result column="ORDER_NO" property="order" jdbcType="INTEGER" />
+	  <result column="parentName" property="parentName" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  	<select id="findByChannelName" resultMap="channelMap" parameterType="String">
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO 
+		from channel
+		<where>
+			<if test="channelName!= null and channelName != ''">
+				<bind name="p_channelName" value="'%' + channelName + '%'" />
+	        		and CHNL_NAME like #{p_channelName}
+	        </if>
+     				and status=1
+	       	</where>
+			order by OPER_TIME DESC
+	</select>
+  
+  	<!-- 查询所有栏目信息 -->
+	<select id="findAllChannel" resultMap="channelMap">
+		select id,parent_id,name,type,code,order_no,remark from area
+	</select>
+	
+	<!-- 查询指定上级栏目的所有状态的所有子级栏目信息 -->
+	<select id="findAllStateChannelByParentId" resultMap="channelMap" >
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO from channel WHERE parent_id=#{parentId}
+	</select>
+	
+	<!-- 查询指定上级栏目的的下辖栏目信息 -->
+	<select id="findChannelByParentId" resultMap="channelMap" >
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO from channel
+		<where>
+			AND parent_id=#{parentId}
+	        AND status=1
+	        <if test="channelCondition!= null and channelCondition!= ''">
+				<bind name="p_channelCondition" value="'%' + channelCondition + '%'" />
+	        		and (CHNL_NAME like #{p_channelCondition} or CHNL_DESC like #{p_channelCondition})
+	        </if>
+		</where> 
+		order by order_no asc
+	</select>
+	
+	<!-- 查询指定站点下的顶级栏目信息 -->
+	<select id="findTopChannelBySiteId" resultMap="channelMap" parameterType="Long">
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO from channel 
+		<where>
+			AND PARENT_ID=0
+			AND SITE_ID=#{siteId}
+	        AND status=1
+	        <if test="channelCondition!= null and channelCondition!= ''">
+				<bind name="p_channelCondition" value="'%' + channelCondition + '%'" />
+	        		and (CHNL_NAME like #{p_channelCondition} or CHNL_DESC like #{p_channelCondition})
+	        </if>
+		</where> 
+		order by order_no asc
+	</select>
+	
+	<!-- 查询指定已回收的上级栏目的未被回收的子级栏目信息 -->
+	<select id="findChannelByRecycleParentId" resultMap="channelMap" >
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO from channel WHERE parent_id=#{parentId} AND status=3
+	</select>
+	
+	<select id="getMaxOrderNoByParentId" resultType="Long">
+		select max(ORDER_NO) from channel where parent_id=#{parentId}
+	</select>
+	
+	<!-- 添加栏目记录 -->
+	<!-- <insert id="addChannel" parameterType="Channel">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">
+		    select SEQ_CHANNEL.nextval from dual
+		  </selectKey>
+		insert into channel(ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO) values(#{id},#{siteId},#{parentId},#{chnlName},#{chnlDesc},#{crUser},#{crTime},#{operUser},#{operTime},#{status},)
+	</insert> -->
+	
+	 <!-- 将栏目放入回收站中 -->
+	 <!-- <update id="setStatus">
+		update channel set status=#{status} where id=#{channelId}
+	</update> -->
+	
+	<select id="findRecycleChannels" resultMap="channelMap" parameterType="String">
+		select cur.ID,cur.SITE_ID,cur.PARENT_ID,cur.CHNL_NAME,cur.CHNL_DESC,cur.CR_USER,cur.CR_TIME,cur.OPER_USER,cur.OPER_TIME,cur.STATUS,cur.ORDER_NO,par.CHNL_NAME parentName 
+		from channel cur left join channel par on cur.parent_id=par.id
+		<where>
+			<if test="channelName!= null and channelName != ''">
+				<bind name="p_channelName" value="'%' + channelName + '%'" />
+	        		and cur.CHNL_NAME like #{p_channelName}
+	        </if>
+     				and cur.STATUS=2 
+     				and cur.PARENT_ID=#{channelId}
+	       	</where>
+			order by cur.OPER_TIME DESC
+	</select>
+	
+	<!-- 向前移动栏目 -->
+	<update id="moveForwardChannel">
+		update channel set ORDER_NO=ORDER_NO+1 where id in ( select id from channel where order_no > #{previousOrder}  
+		<if test="channelOrder!=null and channelOrder!=''">
+			and order_no &lt; #{channelOrder}
+		</if>
+		and  parent_id=#{parent_id} and status=1)
+	</update>
+	
+	 <!-- 向后移动栏目 -->
+	<update id="moveBackwardChannel" >
+		update channel set ORDER_NO=ORDER_NO-1 where id in ( select id from channel where parent_id =#{parent_id}  and order_no > #{channelOrder} 
+		<if test="previousOrder!=null and previousOrder!=''">
+			and order_no &lt;= #{previousOrder}
+		</if>
+		and status=1
+		)		
+	</update> 
+	<!-- 根据站点Id获取站点下的所有栏目 -->
+	<select id="findAllChannelsBySite" parameterType="Long" resultMap="channelMap">
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,STATUS,ORDER_NO from (select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,STATUS,ORDER_NO from channel start with parent_id =0 connect by prior id = parent_id order siblings by ORDER_NO  ASC) where site_id=#{siteId} and status=1
+	</select>
+	<!-- 根据栏目id获取该栏目的所有上级栏目 -->
+	<select id="findParentChannelsByChannelId" parameterType="Long" resultMap="channelMap">
+		select ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,STATUS,ORDER_NO from channel where status=1 start with id =#{channelId} connect by prior parent_id = id
+	</select>
+	<!-- 根据栏目id获取所有的子栏目 -->
+	<select id="findChildrenChannelsByChannelId" parameterType="Long" resultType="Long">
+		select ID from channel where status=1 start with id=#{channelId} connect by parent_id=prior id
+	</select>
+	
+	<!-- 通过栏目ID获取所有正常状态子栏目的栏目ID集合，包含自身 -->
+	<select id="getAllChildrenChannelIds" parameterType="java.lang.Long" resultType="java.lang.Long">
+	select id from channel 
+	where status = 1  
+	start with id = #{channelId} connect by prior id = parent_id
+	</select>
+</mapper>

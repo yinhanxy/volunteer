@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.CertificationMapper" >
+  
+  	<!-- 根据志愿者ID更新对应的所有志愿者的证书is_use信息列表 -->
+	<update id="updateCertsByVolunteerIds" parameterType="long">
+		update certification set IS_USE=1 WHERE IS_USE=0 and VOLUNTEER_ID IN 
+		<foreach collection="volunteerIds" item="volunteerId" open="(" separator="," close=")">
+			#{volunteerId}
+		</foreach>
+	</update>
+	
+</mapper>

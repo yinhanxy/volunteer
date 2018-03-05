@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.RoleMenuMapper" >
+  <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.RoleMenu" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="ROLE_ID" property="roleId" jdbcType="INTEGER" />
+    <result column="MENU_ID" property="menuId" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, ROLE_ID, MENU_ID, CR_USER, CR_TIME
+  </sql>
+  
+  <select id="findMenuIdsByRoleId" parameterType="Long" resultType="Long">
+  	select menu_id from role_menu where role_id=#{roleId}
+  </select>
+</mapper>

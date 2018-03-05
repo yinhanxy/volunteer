@@ -1,0 +1,183 @@
+
+/**
+* 查看页面按钮通用样式
+*/
+body .view-class .layui-layer-btn a{
+	height: 30px;
+    line-height: 28px;
+    margin: 6px 6px 0;
+    padding: 0 10px;
+    border-radius: 2px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/**
+* 查看页面的第一个按钮样式（默认为关闭按钮）
+*/
+body .view-class .layui-layer-btn0{
+	background-color: #DCDCDC;
+    color: #000040;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .view-class .layui-layer-btn0 i{padding-right: 5px;}
+
+/**
+* 编辑页面按钮通用样式
+*/
+body .edit-class .layui-layer-btn a{
+	height: 30px;
+    line-height: 28px;
+    margin: 6px 6px 0;
+    padding: 0 10px;
+    border-radius: 2px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+}
+/**
+* 编辑页面第一个按钮样式（保存按钮）
+*/
+body .edit-class .layui-layer-btn0 {
+    background-color: #449d44;
+    border-color:#449d44;
+    color: #fff;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .edit-class .layui-layer-btn0 i{padding-right: 5px;}
+
+/**
+* 编辑页面第二个按钮样式（关闭按钮）
+*/
+body .edit-class .layui-layer-btn1{
+    background-color: #DCDCDC;
+    color: #000040;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .edit-class .layui-layer-btn1 i{padding-right: 5px;}
+
+
+/**
+* 修改个人信息页面按钮通用样式
+*/
+body .editInfo-class .layui-layer-btn a{
+	height: 30px;
+    line-height: 28px;
+    margin: 6px 6px 0;
+    padding: 0 10px;
+    border-radius: 2px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/**
+* 修改个人信息页面第一个按钮样式（关闭按钮）
+*/
+body .editInfo-class .layui-layer-btn0{
+    background-color: #DCDCDC;
+    color: #000040;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .editInfo-class .layui-layer-btn0 i{padding-right: 5px;}
+
+/**
+* 修改个人信息页面第二个按钮样式（修改个人信息按钮）
+*/
+body .editInfo-class .layui-layer-btn1 {
+    background-color: #5CB85C;
+    border-color:#5CB85C;
+    color: #fff;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .editInfo-class .layui-layer-btn1 i{padding-right: 5px;}
+
+/**
+* 修改个人信息页面第三个按钮样式（修改密码按钮）
+*/
+body .editInfo-class .layui-layer-btn2 {
+    background-color: #5BC0DE;
+    border-color:#5BC0DE;
+    color: #fff;
+    font-size: 12px;
+    border: 1px solid transparent;    
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    background-image: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+body .editInfo-class .layui-layer-btn2 i{padding-right: 5px;}

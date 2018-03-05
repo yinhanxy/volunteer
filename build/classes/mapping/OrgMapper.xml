@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.OrgMapper" >
+  
+	<resultMap id="orgMap" type="com.topstar.volunteer.entity.Org" >
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="summary" property="summary" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="parent_id" property="parentId" jdbcType="INTEGER" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="system_code" property="systemCode" jdbcType="INTEGER" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="area_id" property="areaId" jdbcType="INTEGER" />
+		<result column="contact" property="contact" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="grade" property="grade" jdbcType="INTEGER" />
+	</resultMap>
+  
+  	<select id="findEntityByFilter" resultMap="orgMap">
+		select id,name,summary,type,parent_id,code,address,area_id,contact,mobile,email,grade 
+		from org 
+		<where>
+			<if test="orgName != null and orgName != ''">
+				<bind name="p_orgName" value="'%' + orgName + '%'" />
+	        		name like #{p_orgName}
+	        </if>
+	        <if test="summary != null and summary != ''">
+				<bind name="p_summary" value="'%' + summary + '%'" />
+	        		and summary like #{p_summary}
+	        </if>
+	        <if test="orgId != null and orgId != -1">
+	        	and id in(select id from org start with id = #{orgId} connect by prior id = parent_id)
+	        </if>
+        </where>
+		order by CRT_TIME
+	</select>
+	
+  	<!-- 查询所有机构信息 -->
+	<select id="findAllOrg" resultMap="orgMap">
+		select id,name,summary,type,parent_id,code,address,area_id,system_code,contact,mobile,email,grade from org order by CRT_TIME
+	</select>
+	
+	<!-- 查询指定上级机构的的下级机构信息 -->
+	<select id="findOrgByParentId" resultMap="orgMap" parameterType="Long">
+		select id,name,summary,type,parent_id,code,address,area_id,contact,mobile,email,grade from org where parent_id=#{parentId} order by CRT_TIME
+	</select>
+	
+	<!-- 查询指定上级机构的的下级机构信息 -->
+	<select id="findOrgByAreaId" resultType="long" parameterType="Long">
+		select id from org where area_id=#{id} and type=1
+	</select>
+	
+	<!-- 根据用户Id查询归属部门信息 -->
+	<select id="findOrgByUserId" resultMap="orgMap" parameterType="Long">
+		select o.id,name,type,address,area_id,contact,mobile,email,system_code,grade from org o right outer join org_user ou on ou.org_id=o.id where ou.user_id=#{userId}
+	</select>	
+	
+	<select id="getOrgIdLists" resultType="java.lang.Long" parameterType="Long">
+		select id from org start with id = #{orgId} connect by prior id = parent_id
+	</select>
+	
+	<select id="getAllOrgsByAreaId" resultMap="orgMap" parameterType="Long">
+		select id,name,type,parent_id,area_id,system_code,grade from org start with area_id=#{areaId} connect by prior id=parent_id 
+	</select>
+	
+	<select id="getOrgsByAreaId" resultMap="orgMap" parameterType="Long">
+		select id,name,type,parent_id,area_id,system_code,grade from org where org.area_id in(
+select id from area start with id =#{areaId} connect by prior id = parent_id )and org.id in(
+select id from org
+	<if test="orgId != -1">
+	start with id = #{orgId} connect by prior id = parent_id
+	</if> 
+	) order by id
+	</select>
+</mapper>

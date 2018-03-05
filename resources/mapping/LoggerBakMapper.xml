@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.LoggerBakMapper" >
+  <resultMap id="BaseResultMap"  type="com.topstar.volunteer.entity.LoggerBak">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="LOGGERTYPE" property="loggerType" jdbcType="INTEGER" />
+    <result column="OBJECTTYPE" property="objectType" jdbcType="INTEGER" />
+    <result column="OPERATETYPE" property="operateType" jdbcType="INTEGER" />
+    <result column="MESSAGE" property="message" jdbcType="VARCHAR" />
+    <result column="OPERATEUSER" property="operateUser" jdbcType="VARCHAR" />
+    <result column="OPERATETIME" property="operateTime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    <result column="IP" property="ip" jdbcType="VARCHAR" />
+    <result column="SUCCESS" property="success" jdbcType="INTEGER" />
+    <result column="OBJECTNAME" property="objectName" jdbcType="VARCHAR" />
+     <result column="OBJECTID" property="objectId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, LOGGERTYPE, OBJECTTYPE, OPERATETYPE, MESSAGE, OPERATEUSER, OPERATETIME, IP, SUCCESS,OBJECTNAME,OBJECTID
+  </sql>
+  
+   <insert id="addLoggerBak" parameterType="java.util.List">
+        insert into logger_bak values
+        <foreach collection="loggerList" item="item" index="index" separator=",">
+            (#{item.id,jdbcType=INTEGER}, #{item.loggerType,jdbcType=INTEGER}, #{item.objectType,jdbcType=INTEGER},#{item.operateType,jdbcType=INTEGER},#{item.message,jdbcType=VARCHAR}, #{item.operateUser,jdbcType=VARCHAR}, #{item.operateTime,jdbcType=TIMESTAMP}, #{item.ip,jdbcType=VARCHAR},#{item.success,jdbcType=INTEGER},#{item.objectName,jdbcType=VARCHAR}, #{item.objectId,jdbcType=INTEGER})  
+        </foreach>
+    </insert>
+</mapper>

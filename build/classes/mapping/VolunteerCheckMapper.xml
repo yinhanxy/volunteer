@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.VolunteerCheckMapper" >
+  
+	<resultMap id="volunteerCheckMap" type="com.topstar.volunteer.entity.VolunteerCheck" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="VOLUNTEER_ID" property="volunteerId" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="OPER_TIME" property="operTime" jdbcType="TIMESTAMP" />
+	    <result column="CHECK_CONTENT" property="checkContent" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<select id="findVolunteerCheckByVolunteerId" resultMap="volunteerCheckMap">
+		select id,VOLUNTEER_ID,USER_NAME,OPER_TIME,CHECK_CONTENT,STATUS from volunteerCheck where VOLUNTEER_ID=#{volunteerId}
+	</select>	
+</mapper>

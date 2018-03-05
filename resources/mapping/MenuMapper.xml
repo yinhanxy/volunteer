@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.MenuMapper" >
+  <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.Menu" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
+    <result column="MENU_DESC" property="menuDesc" jdbcType="VARCHAR" />
+    <result column="MENU_TYPE" property="menuType" jdbcType="INTEGER" />
+    <result column="URL" property="url" jdbcType="VARCHAR" />
+    <result column="ICON" property="icon" jdbcType="VARCHAR" />
+    <result column="PARENT_ID" property="parentId" jdbcType="INTEGER" />
+    <result column="PARENT_IDS" property="parentIds" jdbcType="VARCHAR" />
+    <result column="ORDER_NO" property="orderNo" jdbcType="INTEGER" />
+    <result column="IS_SHOW" property="isShow" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, MENU_NAME, MENU_DESC,MENU_TYPE, URL, ICON, PARENT_ID,PARENT_IDS, ORDER_NO, IS_SHOW, CR_USER, CR_TIME
+  </sql>
+  
+  	<select id="findMenus" resultMap="BaseResultMap">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM MENU
+		ORDER BY PARENT_ID ,ORDER_NO
+	</select>
+	
+	<!-- 通过用户编号查询此用户拥有的菜单信息 -->
+	<select id="findMenusByUserId" resultMap="BaseResultMap">
+		select m.id,m.menu_name,m.menu_desc,m.menu_type,m.url,m.icon,m.parent_id,parent_ids,m.order_no, 
+            m.is_show,m.cr_user,m.cr_time 
+    from menu m inner join user_menu ur on(m.id = ur.menu_id) 
+    where ur.user_id = #{userId} order by m.parent_id,m.order_no
+	</select>
+	
+	
+	<!-- 通过角色编号查询角色的菜单信息 -->
+	<select id="findMenuByRoleId" resultMap="BaseResultMap">
+	select m.id,m.menu_name,m.menu_desc,m.menu_type,m.url,m.icon,m.parent_id,parent_ids,m.order_no, 
+            m.is_show,m.cr_user,m.cr_time 
+    from menu m inner join role_menu mr on(m.id = mr.menu_id) 
+    where mr.role_id = #{roleId} order by m.parent_id,m.order_no
+	</select>
+	
+	<!-- 通过父级编号查询菜单信息 -->
+	<select id="findMenuByParentId" resultMap="BaseResultMap">
+	select m.id,m.menu_name,m.menu_desc,m.menu_type,m.url,m.icon,m.parent_id,parent_ids,m.order_no, 
+            m.is_show,m.cr_user,m.cr_time from menu m  where m.parent_id = #{parentId} order by m.order_no
+	</select>
+  
+</mapper>

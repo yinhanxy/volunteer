@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.VolunteerCertificationMapper" >
+  
+  	<resultMap id="volunteerViewMap" type="com.topstar.volunteer.model.VolunteerView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="QQ" property="qq" jdbcType="VARCHAR" />
+	    <result column="NATION" property="nation" jdbcType="VARCHAR" />
+	    <result column="POLSTATUS" property="polstatus" jdbcType="VARCHAR" />
+	    <result column="POSTCODE" property="postcode" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAPLACE" property="naplace" jdbcType="VARCHAR" />
+	    <result column="EDUCATION" property="education" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serviceTeam" jdbcType="INTEGER" />
+	    <result column="JOB_TITLE" property="jobTitle" jdbcType="VARCHAR" />
+	    <result column="DUTIES" property="duties" jdbcType="VARCHAR" />
+	    <result column="GRASCH" property="grasch" jdbcType="VARCHAR" />
+	    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+	    <result column="WORK" property="work" jdbcType="VARCHAR" />
+	    <result column="JOB_ADDRESS" property="jobAddress" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="SPECILITY" property="specility" jdbcType="VARCHAR" />
+	    <result column="SERVICE_EXPERIMENT" property="serviceExperiment" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TIME" property="serviceTime" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="SERVICE_CLASS" property="serviceClass" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="IMG_URL" property="imgUrl" jdbcType="VARCHAR" />
+	    <result column="SERVICE_HOUR" property="serviceHour" jdbcType="INTEGER" />
+	    <result column="STATUS" property="volunteerStatus" jdbcType="INTEGER" />
+	    <result column="CHECK_STATUS" property="status" jdbcType="VARCHAR" />
+	    
+	    <result column="CERTID" property="certId" jdbcType="VARCHAR" />
+	    <result column="CERT_DATE" property="certDate" jdbcType="TIMESTAMP" />
+	    <result column="OPER_TIME" property="opertTime" jdbcType="TIMESTAMP" />
+	    <result column="OPERT_USER" property="opertUser" jdbcType="VARCHAR" />
+	    <result column="CHECK_YEAR" property="checkYear" jdbcType="VARCHAR" />
+	    <result column="CHECK_STATE" property="checkState" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  	<!-- 根据志愿者实体字段的值过滤查询志愿者证书的信息列表 -->
+	<select id="findVolunteerCertByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, v.IDCARD, v.SERVICE_TEAM,
+	    cert.cert_date ,c.oper_time,c.opert_user,c.check_year,c.check_state,s.id SERID,s.name
+		from volunteer v right outer join certification cert on v.id=cert.volunteer_id 
+		left join cert_check c on cert.id=c.cert_id and  EXTRACT(year FROM oper_time) = EXTRACT(year FROM sysdate) left join serteam s on v.service_team=s.id 
+		left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+		<where>
+					cert.is_use=0
+			<if test="volunteer.userName != null and volunteer.userName != ''">
+				<bind name="p_userName" value="'%' + volunteer.userName + '%'" />
+	        		and v.user_name like #{p_userName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and v.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and v.mobile  like #{p_mobile }
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+	        		and v.SERVICE_TEAM = #{p_serviceTeam}
+	        </if>
+	        
+        	<if test="volunteer.status !=null and volunteer.status !=-1 and volunteer.status!=''">
+        		<bind name="p_status" value="volunteer.status" />
+        			and c.check_state= #{p_status}
+        	</if>
+        	<if test="volunteer.status ==null or volunteer.status== ''">
+        			and c.check_state is null 
+        	</if>
+        	<if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<!-- 根据志愿者实体字段的值过滤查询尚未颁发证书志愿者的信息列表 -->
+	<select id="findVolunteerWithoutCertByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID,USER_NAME,REAL_NAME,  SEX, IDCARD,SERVICE_TEAM,  REG_TIME,v.STATUS,IMG_URL,s.id SERID,s.name
+		from volunteer v left join serteam s on v.service_team=s.id left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+		<where>
+					v.id not in (select volunteer_id from  certification where is_use=0)
+					and v.STATUS=2
+			<if test="volunteer.realName != null and volunteer.realName != ''">
+				<bind name="p_realName" value="'%' + volunteer.realName + '%'" />
+	        		and real_name like #{p_realName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and mobile  like #{p_mobile }
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=0 and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+	        		and SERVICE_TEAM = #{p_serviceTeam}
+	        </if>
+	        <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<!-- 根据志愿者ID查询指定志愿者证书信息 -->
+	<select id="findVolunteerCertByVolunteerId" resultMap="volunteerViewMap" parameterType="java.lang.Long">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, v.IDCARD, BIRTHDAY,QQ,NATION,POLSTATUS,POSTCODE,ADDRESS,NAPLACE,EDUCATION,
+			JOB_TITLE,DUTIES,GRASCH,PROFESSION,WORK,JOB_ADDRESS,MOBILE,EMAIL,SPECILITY,SERVICE_EXPERIMENT,SERVICE_TIME,REMARK,
+			SERVICE_CLASS,
+		 	v.SERVICE_TEAM,MOBILE, REG_TIME,IMG_URL,SERVICE_HOUR,cert.id CERTID,
+	    	cert.cert_date from volunteer v left outer join certification cert on v.id=cert.volunteer_id and cert.is_use=0 
+			where v.id=#{volunteerId} 
+	</select>
+	
+</mapper>

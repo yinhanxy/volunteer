@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.AreaMapper" >
+  
+	<resultMap id="areaMap" type="com.topstar.volunteer.entity.Area" >
+	  <id column="id" property="id" jdbcType="INTEGER" />
+	  <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+	  <result column="name" property="name" jdbcType="VARCHAR" />
+	  <result column="type" property="type" jdbcType="INTEGER" />
+	  <result column="code" property="code" jdbcType="VARCHAR" />
+	  <result column="order_no" property="order" jdbcType="INTEGER" />
+	  <result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  	<!-- 查询所有区域信息 -->
+	<select id="findAllArea" resultMap="areaMap">
+		select id,parent_id,name,type,code,order_no,remark from area
+	</select>
+	
+	<!-- 查询指定上级区域的的下辖区域信息 -->
+	<select id="findAreaByParentId" resultMap="areaMap" parameterType="Long">
+		select id,parent_id,name,type,code,order_no,remark from area where parent_id=#{parentId}
+	</select>
+	
+	<select id="findAreaChildersByParentId" resultMap="areaMap" parameterType="Long">
+		select id,parent_id,name,type,code,order_no,remark from area  where type=2 start with id=#{areaId}  connect by prior id=parent_id  
+	</select>
+	
+	<!-- 添加区域记录 -->
+	<insert id="addArea" parameterType="Area">
+		insert into area(id,parent_id,name,type,code,order_no,remark) values(SEQ_AREA.nextval,#{parentId},#{name},#{type},#{code},SEQ_AREA.nextval,#{remark})
+	</insert>
+	
+	<update id="updateArea" parameterType="Area">
+		update area set parent_id=#{parentId},name=#{name},type=#{type},code=#{code},order_no=#{id},remark=#{remark} where id=#{id}
+	</update>
+	
+	<!-- 查询所有市级区域信息 -->
+	<select id="getAreas" resultMap="areaMap">
+		select id,name,type,code from area where type=1
+	</select>
+</mapper>

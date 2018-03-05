@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.RoleMapper" >
+
+  <resultMap id="roleMap" type="com.topstar.volunteer.entity.Role" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="ROLE_NAME" property="roleName" jdbcType="VARCHAR" />
+    <result column="ROLE_DESC" property="roleDesc" jdbcType="VARCHAR" />
+    <result column="ROLE_TYPE" property="roleType" jdbcType="INTEGER" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+ 
+ 	
+  <select id="findByEntity" resultMap="roleMap" parameterType="com.topstar.volunteer.entity.Role">
+		select ID,ROLE_NAME,ROLE_DESC,ROLE_TYPE,STATUS,CR_USER,CR_TIME 
+		from sys_role
+		<if test="role != null">
+		<where>
+			<if test="role.roleName!= null and role.roleName != ''">
+				<bind name="p_roleName" value="'%' + role.roleName + '%'" />
+	        		and ROLE_NAME like #{p_roleName}
+	        </if>
+        	<if test="role.crUser != null and role.crUser != ''">
+        		<bind name="p_crUser" value="'%' + role.crUser + '%'" />
+        			and CR_USER like #{p_crUser}
+        	</if>
+        	<if test="role.roleType != null and role.roleType !=-1 ">
+        			<bind name="p_roleType" value="role.roleType" />
+        			and ROLE_TYPE = #{p_roleType}
+        	</if>
+        			and status=1
+        	</where>
+			order by CR_TIME DESC
+		</if>
+	</select>
+	
+	 	
+  <select id="findRolesByUserId" resultMap="roleMap">
+	select r.id,r.role_name,r.role_desc,r.role_type,r.status,r.cr_user,r.cr_time 
+	from sys_role r inner join role_user u
+	on (r.id = u.role_id)
+	where u.user_id = #{userId}
+	</select>
+	
+	<select id="selectAllByStatus" resultMap="roleMap">
+	select id,role_name,role_desc,role_type,status,cr_user,cr_time 
+	from sys_role 
+	where status = #{status}
+	</select>
+	
+	
+	<select id="findRoleByRoleName" resultMap="roleMap">
+	select id,role_name,role_desc,role_type,status,cr_user,cr_time 
+	from sys_role 
+	where role_name = #{roleName}
+	</select>
+</mapper>

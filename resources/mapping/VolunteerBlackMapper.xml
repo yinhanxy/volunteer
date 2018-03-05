@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.VolunteerBlackMapper" >
+  
+	<resultMap id="volunteerBlackMap" type="com.topstar.volunteer.entity.VolunteerBlack" >
+	  <id column="id" property="id" jdbcType="INTEGER" />
+	  <result column="VOLUNTEER_ID" property="volunteerId" jdbcType="INTEGER" />
+	  <result column="OPERT_TIME" property="opertTime" jdbcType="TIMESTAMP" />
+	  <result column="OPERT_USER" property="opertUser" jdbcType="VARCHAR" />
+	  <result column="REASON" property="reason" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<resultMap id="volunteerViewMap" type="com.topstar.volunteer.model.VolunteerView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="POLSTATUS" property="polstatus" jdbcType="VARCHAR" />
+	    <result column="POSTCODE" property="postcode" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAPLACE" property="naplace" jdbcType="VARCHAR" />
+	    <result column="EDUCATION" property="education" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serviceTeam" jdbcType="INTEGER" />
+	    <result column="JOB_TITLE" property="jobTitle" jdbcType="VARCHAR" />
+	    <result column="DUTIES" property="duties" jdbcType="VARCHAR" />
+	    <result column="GRASCH" property="grasch" jdbcType="VARCHAR" />
+	    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+	    <result column="WORK" property="work" jdbcType="VARCHAR" />
+	    <result column="JOB_ADDRESS" property="jobAddress" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="SPECILITY" property="specility" jdbcType="VARCHAR" />
+	    <result column="SERVICE_EXPERIMENT" property="serviceExperiment" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TIME" property="serviceTime" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+		<result column="STATUS" property="volunteerStatus" jdbcType="INTEGER" />
+		
+		<result column="BLACKID" property="blackId" jdbcType="VARCHAR" />
+		<result column="OPERT_SERNAME" property="operateUserSerName" jdbcType="VARCHAR" />
+		<result column="OPERT_USER" property="blackOperateUser" jdbcType="VARCHAR" />
+	    <result column="OPERT_TIME" property="blackOperateDate" jdbcType="TIMESTAMP" />
+	    <result column="REASON" property="blackOperateReason" jdbcType="VARCHAR" />	    
+	</resultMap>
+	
+	<!-- 根据志愿者实体字段的值过滤查询志愿者黑名单的信息列表 -->
+	<select id="findVolunteerBlackByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID, v.USER_NAME, REAL_NAME,v.IDCARD,v.SERVICE_TEAM,b.id BLACKID,OPERT_TIME,OPERT_USER,REASON,tu.team_id,s.name OPERT_SERNAME
+    	from volunteer v right outer join volunteer_black b on v.id=b.volunteer_id 
+		left join team_user tu on  tu.user_id =b.user_id left join serteam s on team_id=s.id 
+		left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+		<where>
+			<if test="volunteer.userName != null and volunteer.userName != ''">
+				<bind name="p_userName" value="'%' + volunteer.userName + '%'" />
+	        		and v.user_name like #{p_userName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and v.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and v.mobile  like #{p_mobile }
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!= '' and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+	        		and v.SERVICE_TEAM = #{p_serviceTeam}
+	        </if>
+	         <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<!-- 根据志愿者ID查询指定志愿者黑名单信息 -->
+	<select id="findVolunteerBlackByVolunteerId" resultMap="volunteerViewMap" parameterType="java.lang.Long">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, v.IDCARD,  v.SERVICE_TEAM,MOBILE, REG_TIME,
+	    b.id BLACKID,OPERT_TIME,OPERT_USER,REASON,s.id SERID,s.name 
+		from volunteer v right outer join volunteer_black b on v.id=b.volunteer_id left join serteam s on v.service_team=s.id where v.id=#{volunteerId} 
+	</select>
+	
+	<!-- 查询尚未有黑名单记录的志愿者信息列表信息  -->
+	<select id="findVolunteersWithoutBlack" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, v.IDCARD, v.SERVICE_TEAM,v.MOBILE, REG_TIME,v.STATUS,s.id SERID,s.name 
+		from volunteer v left outer join volunteer_black b on v.id=b.volunteer_id left join serteam s on v.service_team=s.id 
+		left join org og on s.org_id=og.id
+		<where>
+					and b.id is null and v.STATUS=2
+			<if test="volunteer != null">
+				<if test="volunteer.userName != null and volunteer.userName != ''">
+					<bind name="p_userName" value="'%' + volunteer.userName + '%'" />
+		        		and v.user_name like #{p_userName}
+		        </if>
+		        <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+	        	</if>
+	        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+	        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+	        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+	        	</if>
+	        </if>
+        </where>
+        
+	</select>
+	
+	<delete id="delVolunteerBlacks">
+		delete from volunteer_black where id in
+		<foreach collection="array" item="idValue" open="(" separator="," close=")">
+			#{idValue}
+		</foreach> 
+	</delete>
+</mapper>

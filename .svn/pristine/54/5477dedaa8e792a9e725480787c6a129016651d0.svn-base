@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.VolunteerMapper" >
+  
+	<resultMap id="volunteerMap" type="com.topstar.volunteer.entity.Volunteer" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="QQ" property="qq" jdbcType="VARCHAR" />
+	    <result column="NATION" property="nation" jdbcType="VARCHAR" />
+	    <result column="POLSTATUS" property="polstatus" jdbcType="VARCHAR" />
+	    <result column="POSTCODE" property="postcode" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAPLACE" property="naplace" jdbcType="VARCHAR" />
+	    <result column="EDUCATION" property="education" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TEAM" property="serviceTeam" jdbcType="INTEGER" />
+	    <result column="JOB_TITLE" property="jobTitle" jdbcType="VARCHAR" />
+	    <result column="DUTIES" property="duties" jdbcType="VARCHAR" />
+	    <result column="GRASCH" property="grasch" jdbcType="VARCHAR" />
+	    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+	    <result column="WORK" property="work" jdbcType="VARCHAR" />
+	    <result column="JOB_ADDRESS" property="jobAddress" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="SPECILITY" property="specility" jdbcType="VARCHAR" />
+	    <result column="SERVICE_EXPERIMENT" property="serviceExperiment" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TIME" property="serviceTime" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="STATUS" property="retreatTeamStatus" jdbcType="INTEGER" />
+	</resultMap>
+  
+  	<resultMap id="volunteerViewMap" type="com.topstar.volunteer.model.VolunteerView" >
+		<id column="VOID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="POLSTATUS" property="polstatus" jdbcType="VARCHAR" />
+	    <result column="POSTCODE" property="postcode" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAPLACE" property="naplace" jdbcType="VARCHAR" />
+	    <result column="EDUCATION" property="education" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serviceTeam" jdbcType="VARCHAR" />
+	    <result column="JOB_TITLE" property="jobTitle" jdbcType="VARCHAR" />
+	    <result column="DUTIES" property="duties" jdbcType="VARCHAR" />
+	    <result column="GRASCH" property="grasch" jdbcType="VARCHAR" />
+	    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+	    <result column="WORK" property="work" jdbcType="VARCHAR" />
+	    <result column="JOB_ADDRESS" property="jobAddress" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="SPECILITY" property="specility" jdbcType="VARCHAR" />
+	    <result column="SERVICE_EXPERIMENT" property="serviceExperiment" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TIME" property="serviceTime" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="STATUS" property="volunteerStatus" jdbcType="INTEGER" />
+	    <result column="CHECK_STATUS" property="status" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<resultMap id="volunteerstatisticsMap" type="com.topstar.volunteer.model.Statistics" >
+	    <result column="SERTEAMNAME" property="serTeamName" jdbcType="VARCHAR" />
+	    <result column="NAME" property="areaName" jdbcType="VARCHAR" />
+	    <result column="VOLNUM" property="volNum" jdbcType="INTEGER" />
+	    <result column="TYPE" property="areaType" jdbcType="INTEGER" />
+	    <result column="CODE" property="areaCode" jdbcType="VARCHAR" />
+	    <result column="VOLBOYSNUM" property="volBoysNum" jdbcType="INTEGER" />
+	    <result column="VOLGIRLSNUM" property="volGirlsNum" jdbcType="INTEGER" />
+	    <result column="VOLGRADUATENUM" property="volGraduateNum" jdbcType="INTEGER" />
+	    <result column="VOLPOSTGRADUATENUM" property="volPostGraduateNum" jdbcType="INTEGER" />
+	    <result column="VOLUNDERGRADUATENUM" property="volUndergraduateNum" jdbcType="INTEGER" />
+	    <result column="VOLCOLLEGENUM" property="volCollegeNum" jdbcType="INTEGER" />
+	    <result column="VOLSECONDARYNUM" property="volSecondaryNum" jdbcType="INTEGER" />
+	    <result column="VOLVOCATIONALNUM" property="volVocationalNum" jdbcType="INTEGER" />
+	    <result column="VOLMIDDLENUM" property="volMiddleNum" jdbcType="INTEGER" />
+	    <result column="VOLJUNIORNUM" property="volJuniorNum" jdbcType="INTEGER" />
+	    <result column="VOLPRIMARYNUM" property="volPrimaryNum" jdbcType="INTEGER" />
+	    <result column="VOLOTHEREDUCATIONNUM" property="volOtherEducation" jdbcType="INTEGER" />
+	    <result column="VOLCPCNUM" property="volCpcNum" jdbcType="INTEGER" />
+	    <result column="VOLPREPARENUM" property="volPrepareNum" jdbcType="INTEGER" />
+	    <result column="VOLCYLNUM" property="volCYLNum" jdbcType="INTEGER" />
+	    <result column="VOLDEMOCRATICNUM" property="volDemocraticNum" jdbcType="INTEGER" />
+	    <result column="VOLNONPARTISANNUM" property="volNonpartisanNum" jdbcType="INTEGER" />
+	    <result column="VOLCITIZENNUM" property="volCitizen" jdbcType="INTEGER" />
+	    <result column="VOLTEEN" property="volTeen" jdbcType="INTEGER" />
+	    <result column="VOLTWENTY" property="volTwenty" jdbcType="INTEGER" />
+	    <result column="VOLTHIRTY" property="volThirty" jdbcType="INTEGER" />
+	    <result column="VOLFORTY" property="volForty" jdbcType="INTEGER" />
+	    <result column="VOLFIFTY" property="volFiFty" jdbcType="INTEGER" />
+	    <result column="VOLSIXTY" property="volSixty" jdbcType="INTEGER" />
+	    <result column="VOLNAME" property="volName" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="SERTEAMHOUR" property="serTeamHour" jdbcType="INTEGER" />
+	    <result column="ACTIVITYNUM" property="activityNum" jdbcType="INTEGER" />
+	</resultMap>
+  	
+  	<select id="findByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, v.IDCARD, BIRTHDAY, QQ, NATION, POLSTATUS, POSTCODE, v.ADDRESS, 
+		NAPLACE, EDUCATION, v.SERVICE_TEAM, JOB_TITLE, DUTIES, GRASCH, PROFESSION, WORK, JOB_ADDRESS, 
+		v.MOBILE, v.EMAIL, SPECILITY, SERVICE_EXPERIMENT, SERVICE_TIME, REMARK, REG_TIME,v.STATUS,s.id SERID,s.name
+	    from volunteer v  left join serteam s on v.service_team=s.id left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+			<where>
+				<if test="volunteer.status  != null and volunteer.status  != -1">
+					<bind name="p_status" value="volunteer.status" />
+		        		v.status = #{p_status}
+		        </if>
+		        <if test="volunteer.status  == null or volunteer.status  == -1">
+		        		v.status IN (2,5,6)
+		        </if>
+		        <if test="volunteer.realName != null and volunteer.realName != ''">
+					<bind name="p_realName" value="'%' + volunteer.realName + '%'" />
+		        		and v.REAL_NAME like #{p_realName}
+		        </if>
+		        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+					<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+		        		and v.IDCARD  like #{p_idcard}
+		        </if>
+		        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+					<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+		        		and v.MOBILE  like #{p_mobile }
+		        </if>
+		        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=-1">
+					<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+		        		and v.SERVICE_TEAM = #{p_serviceTeam}
+		        </if>
+		        <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+	        			<bind name="p_orgId" value="volunteer.orgId" />
+	        			and s.ORG_ID = #{p_orgId}
+	        	</if>
+	        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+	        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+	        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+	        	</if>
+	        </where>
+		</if>
+	</select>
+	
+	<select id="findVolunteerCheckByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select v.ID, v.USER_NAME, REAL_NAME, SEX, IDCARD, BIRTHDAY, QQ, NATION, POLSTATUS, POSTCODE, v.ADDRESS, 
+	    NAPLACE, EDUCATION, SERVICE_TEAM, JOB_TITLE, DUTIES, GRASCH, PROFESSION, WORK, JOB_ADDRESS, 
+	    v.MOBILE, v.EMAIL, SPECILITY, SERVICE_EXPERIMENT, SERVICE_TIME, REMARK, REG_TIME,vc.STATUS CHECK_STATUS,s.id SERID,s.name
+		from volunteer v left outer join volunteerCheck vc on v.id=vc.volunteer_id left outer join serteam s on v.service_team=s.id
+		left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+		<where>
+	        <if test="volunteer.realName != null and volunteer.realName != ''">
+				<bind name="p_realName" value="'%' + volunteer.realName + '%'" />
+	        		v.REAL_NAME like #{p_realName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and v.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and v.mobile  like #{p_mobile}
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+	        		and v.SERVICE_TEAM = #{p_serviceTeam}
+	        </if>
+	        
+        	<if test="volunteer.status != null and volunteer.status !=-1">
+        		<choose>
+        			<when test="volunteer.status!=01">
+        				<bind name="p_status" value="volunteer.status" />
+        				and vc.STATUS= #{p_status}
+        			</when>
+        			<otherwise>
+        				and vc.STATUS is null
+        			</otherwise>
+        		</choose>
+        	</if>	
+        	<if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<select id="selectVolId" resultType="java.lang.Long">
+		select id from volunteer where IDCARD= #{idcard}
+	</select>
+	
+	<update id="setVolunteerPassword" >
+		update volunteer set password=#{newEncodePwd} where id in 
+		<foreach collection="ids" item="idValue" open="(" separator="," close=")">
+			#{idValue}
+		</foreach>
+	</update>
+	
+	<update id="editRetreatTeamStatus" >
+		update volunteer set STATUS=#{retreatTeamStatus} where id = #{volId}
+	</update>
+	
+	<select id="statisticsShow" resultMap="volunteerstatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select ar.name ,count(vol.id) VOLNUM,ar.type,ar.code from volunteer vol inner join serteam st on vol.service_team= st.id inner join org o on st.org_id=o.id 
+	inner join area ar on o.area_id= ar.id
+	<if test="statistics != null">
+		<where>
+			<if test="statistics.areaType != null and statistics.areaType !=0">
+        		<bind name="p_areaType" value="statistics.areaType" />
+        			and ar.type= #{p_areaType}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and o.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+	</if>
+ 	group by ar.name,ar.type,ar.code
+	</select>
+	
+	<!-- 得到志愿者比例信息(如,男女比例,政治面貌,学历信息) -->
+	<select id="getVolInfo" resultMap="volunteerstatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select sum(volNum)VOLNUM, sum(volBoysNum)VOLBOYSNUM,sum(volGirlsNum)VOLGIRLSNUM ,
+		sum(volGraduateNum)VOLGRADUATENUM,sum(volUndergraduateNum)VOLUNDERGRADUATENUM,sum(volCollegeNum)VOLCOLLEGENUM,
+		sum(volOtherEducation)VOLOTHEREDUCATIONNUM,sum(volCpcNum)VOLCPCNUM,sum(volPrepareNum)VOLPREPARENUM,sum(volCYLNum)VOLCYLNUM,
+		sum(volDemocraticNum)VOLDEMOCRATICNUM,sum(volNonpartisanNum)VOLNONPARTISANNUM,sum(volCitizen)VOLCITIZENNUM
+		from (
+			select service_team, count(vol.id)volNum,sum(case when vol.sex='男' then 1 else 0 end)volBoysNum,sum(case when vol.sex='女' then 1 else 0 end)volGirlsNum ,
+			sum(case when vol.education='01'then 1 when vol.education='02'then 1 else 0 end)volGraduateNum,
+			sum(case when vol.education='03'then 1 else 0 end)volUndergraduateNum,
+			sum(case when vol.education='04'then 1 when vol.education='05'then 1 else 0 end)volCollegeNum,
+			sum(case when vol.education='06'then 1 when vol.education='07'then 1 when vol.education='08'then 1 when vol.education='09'then 1 when vol.education='10'then 1 else 0 end)volOtherEducation,
+			sum(case when vol.polstatus='01'then 1 else 0 end)volCpcNum,
+			sum(case when vol.polstatus='02'then 1 else 0 end)volPrepareNum,
+			sum(case when vol.polstatus='03'then 1 else 0 end)volCYLNum,
+			sum(case when vol.polstatus='04'then 1 else 0 end)volDemocraticNum,
+			sum(case when vol.polstatus='05'then 1 else 0 end)volNonpartisanNum,
+			sum(case when vol.polstatus='06'then 1 else 0 end)volCitizen
+			from volunteer vol inner join serteam st on vol.service_team=st.id 
+		<where>
+			vol.status=2
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        			<bind name="p_orgId" value="statistics.orgId" />
+        			and st.ORG_ID = #{p_orgId}
+        	</if>
+        </where>
+		group by vol.service_team)
+	</select>
+	
+	<select id="getVolByOrgId" resultMap="volunteerMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select vol.id ,vol.user_name ,vol.real_name,vol.sex,vol.mobile,vol.idcard from volunteer vol inner join serteam st on vol.service_team=st.id
+		inner join org o on o.id=st.org_id
+		<where>
+			<if test="trainId != null">
+				 o.id=(select  ser.org_id from tr_record tr inner join serteam ser on tr.team_id= ser.id where tr.id= #{trainId})
+			</if>	
+			<if test="volunteer.userName != null and volunteer.userName != ''">
+				<bind name="p_userName" value="'%' + volunteer.userName + '%'" />
+	        		and vol.user_name like #{p_userName}
+	        </if>
+	        <if test="volunteer.realName != null and volunteer.realName != ''">
+	        		<bind name="p_realName" value="'%' + volunteer.realName + '%'" />
+	        			and vol.real_name like #{p_realName}
+	        </if>
+        </where>
+	</select>
+	
+	<select id="getVols" resultMap="volunteerMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		select vol.id ,vol.user_name ,vol.real_name,vol.sex,vol.mobile,vol.idcard,vol.reg_time from volunteer vol inner join serteam st on vol.service_team=st.id
+		inner join org o on o.id=st.org_id where o.id= #{orgId} and vol.status=2
+	</select>
+	
+	<!-- 得到志愿者比例信息按照服务队划分 -->
+	<select id="getVolInfoList" resultMap="volunteerstatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select st.name SERTEAMNAME, vol.service_team,count(vol.id)volNum,
+		  sum(case when vol.sex='男' then 1 else 0 end)volBoysNum,
+		  sum(case when vol.sex='女' then 1 else 0 end)volGirlsNum ,
+	      sum(case when vol.education='01'then 1 else 0 end)volGraduateNum,
+	      sum(case when vol.education='02'then 1 else 0 end)volPostGraduateNum,
+	      sum(case when vol.education='03'then 1 else 0 end)volUndergraduateNum,
+	      sum(case when vol.education='04'then 1 else 0 end)volCollegeNum,
+	      sum(case when vol.education='05'then 1 else 0 end)volSecondaryNum,
+	      sum(case when vol.education='06'then 1 else 0 end)volVocationalNum,
+	      sum(case when vol.education='07'then 1 else 0 end)volMiddleNum,
+	      sum(case when vol.education='08'then 1 else 0 end)volJuniorNum,
+	      sum(case when vol.education='09'then 1 else 0 end)volPrimaryNum,
+	      sum(case when vol.education='10'then 1 else 0 end)volOtherEducation,
+	      sum(case when vol.polstatus='01'then 1 else 0 end)volCpcNum,
+		  sum(case when vol.polstatus='02'then 1 else 0 end)volPrepareNum,
+		  sum(case when vol.polstatus='03'then 1 else 0 end)volCYLNum,
+		  sum(case when vol.polstatus='04'then 1 else 0 end)volDemocraticNum,
+		  sum(case when vol.polstatus='05'then 1 else 0 end)volNonpartisanNum,
+		  sum(case when vol.polstatus='06'then 1 else 0 end)volCitizen,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)&lt;20 then 1 else 0 end) VOLTEEN,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)between 20 and 30 then 1 else 0 end) VOLTWENTY,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)between 31 and 40 then 1 else 0 end)VOLTHIRTY,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)between 41 and 50 then 1 else 0 end)VOLFORTY,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)between 51 and 60 then 1 else 0 end)VOLFIFTY,
+		  sum(case when floor(months_between(sysdate,vol.birthday)/12)&gt;60 then 1 else 0 end)VOLSIXTY
+from volunteer vol inner join serteam st on vol.service_team=st.id
+	<where>
+			vol.status=2
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        			<bind name="p_orgId" value="statistics.orgId" />
+        			and st.ORG_ID = #{p_orgId}
+        	</if>
+        </where>
+ group by vol.service_team, st.name order by volNum desc
+	</select>
+	
+	<!-- 得到志愿者统计信息(名称,注册时间,服务时长,活动次数) -->
+	<select id="getVolStatis" resultMap="volunteerstatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select vol.user_name VOLNAME,vol.reg_time,vol.service_hour SERTEAMHOUR,
+		count(av.id)ACTIVITYNUM from volunteer vol  left join activity_volunteer av on
+		 vol.id=av.volunteer_id inner join serteam st on st.id=vol.service_team 
+		 <where>
+			vol.status=2
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        			<bind name="p_orgId" value="statistics.orgId" />
+        			and st.ORG_ID = #{p_orgId}
+        	</if>
+        </where>
+		 group by vol.id ,vol.user_name,vol.reg_time,vol.service_hour
+		 order by ACTIVITYNUM desc
+	</select>
+</mapper>

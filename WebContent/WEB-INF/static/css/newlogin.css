@@ -1,0 +1,109 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+.fl{
+	float: left;
+}
+.fr{
+	float: right
+}
+body{
+	width: 100%;
+	background: url(../images/login_bg.png) no-repeat top center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+}
+/**********************/
+.main{
+	width: 539px;
+	height: 451px;
+	margin: 6% auto;
+}
+.main a img{
+	width: 100%;
+	border: none;
+}
+.main .deng{
+	width: 539px;
+	height: 350px;
+	background: #93C7E7;
+	border-radius: 15px;
+	margin-top: 21px;
+	position: relative;
+	background-color:rgba(205,231,245,.5); 
+}
+.main .deng .inp input{
+	width: 345px;
+	height: 42px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-left: 68px;
+	margin-top: 30px;
+	padding-left: 55px;
+	line-height: 42px;
+	font-size: 14px;
+	font-family: "微软雅黑";
+}
+
+
+.main .deng .inp .inp1{
+	margin-top: 50px;
+}
+.main .deng .inp span{
+	display: block;
+	width: 47px;
+	height: 42px;
+	background: #EEEEEE;
+	border-right: 1px solid #ccc;
+	position: absolute;
+	top: 51px;
+	left: 68px;
+	border-radius: 5px 0 0 5px;
+}
+.main .deng .inp span img{
+	margin: 6px 13px;
+	border: none;
+}
+.main .deng .inp .inp2{
+	display: block;
+	width: 47px;
+	height: 42px;
+	background: #EEEEEE;
+	border-right: 1px solid #ccc;
+	position: absolute;
+	top: 125px;
+	left: 68px;
+	border-radius: 5px 0 0 5px;
+}
+.main .deng .inp .inp3{
+	width: 232px;
+	padding-left: 20px;
+}
+.main .deng .inp div{
+	width: 136px;
+	height: 42px;
+	display: block;
+	margin-top: 33px;
+	margin-right: 71px;
+	border-radius: 5px;
+}
+.main .deng .inp a img{
+	border-radius: 5px;
+	border: none;
+}
+.main .deng button{
+	width: 395px;
+	height: 42px;
+	border: none;
+	outline: none;
+	background: #2E9EE6;
+	border-radius: 5px;
+	color: #E0EEFA;
+	font-size: 16px;
+	font-family: "微软雅黑";
+	margin-left: 68px;
+	margin-top: 20px;
+	cursor: pointer;
+}

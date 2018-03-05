@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.MonitorMapper">
+
+	<resultMap id="monitorMap" type="com.topstar.volunteer.entity.Monitor">
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="CPURATE" property="cpurate" jdbcType="INTEGER" />
+		<result column="DISKRATE" property="diskrate" jdbcType="INTEGER" />
+		<result column="MEMORYRATE" property="memoryrate" jdbcType="INTEGER" />
+		<result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!--删除监控信息 -->
+	<delete id="delMonitorInfo">
+		truncate table SYS_MONITOR
+	</delete>
+
+	<!--新增监控信息 -->
+	<insert id="addMonitorInfo" parameterType="com.topstar.volunteer.entity.Monitor">
+		insert into
+		SYS_MONITOR (ID, CPURATE, DISKRATE,
+		MEMORYRATE, CR_TIME)
+		values
+		(SEQ_SYS_MONITOR.nextval, #{cpurate}, #{diskrate},
+		#{memoryrate},
+		#{crTime})
+	</insert>
+
+	<!--查询监控信息 -->
+	<select id="getMonitors" resultMap="monitorMap">
+		SELECT
+		ID,CPURATE,DISKRATE,MEMORYRATE,CR_TIME FROM SYS_MONITOR
+	</select>
+
+</mapper>

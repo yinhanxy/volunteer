@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.SerTeamMapper" >
+  
+  <resultMap id="serTeamMap" type="com.topstar.volunteer.entity.SerTeam" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="INTEGER" />
+    <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+    <result column="SUMMARY" property="summary" jdbcType="VARCHAR" />
+    <result column="CONTACT" property="contact" jdbcType="VARCHAR" />
+    <result column="CONTACT_TEL" property="contactTel" jdbcType="VARCHAR" />
+    <result column="FAX" property="fax" jdbcType="VARCHAR" />
+    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+    <result column="PRINCIPAL" property="principal" jdbcType="VARCHAR" />
+    <result column="PRINCIPAL_TEL" property="principalTel" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="AREA_ID" property="areaId" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="AVATAR_URL" property="avatarUrl" jdbcType="VARCHAR" />
+    <result column="SERNUM" property="serNum" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="serVOltatisticsMap" type="com.topstar.volunteer.model.Statistics" >
+	    <result column="NAME" property="areaName" jdbcType="VARCHAR" />
+	    <result column="SERNAME" property="serTeamName" jdbcType="VARCHAR" />
+	    <result column="SERTEAMNUM" property="serTeamNum" jdbcType="INTEGER" />
+	    <result column="CODE" property="areaCode" jdbcType="VARCHAR" />
+	    <result column="TYPE" property="areaType" jdbcType="INTEGER" />
+	    <result column="SERVICEHOUR" property="serHours" jdbcType="DOUBLE" />
+	</resultMap>
+  
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, NAME, ORG_ID, SUMMARY, CONTACT, CONTACT_TEL, FAX, EMAIL, PRINCIPAL, PRINCIPAL_TEL, 
+    ADDRESS, AREA_ID, CR_USER, CR_TIME, STATUS
+  </sql>
+  
+  <select id="findByEntity" resultMap="serTeamMap">
+		select st.ID, st.NAME, st.ORG_ID, t.NAME ORG_NAME,st.SUMMARY, st.CONTACT, st.CONTACT_TEL, st.FAX, st.EMAIL, st.PRINCIPAL, st.PRINCIPAL_TEL, 
+    st.ADDRESS, st.AREA_ID, st.CR_USER, st.CR_TIME, st.STATUS from SERTEAM st inner join org t on(st.ORG_ID = t.id)  
+		<if test="serteam != null">
+		<where>
+			<if test="serteam.name!= null and serteam.name != ''">
+				<bind name="p_name" value="'%' + serteam.name + '%'" />
+	        		and st.NAME like #{p_name}
+	        </if>
+        	<if test="serteam.orgName != null and serteam.orgName != ''">
+        		<bind name="p_orgName" value="'%' + serteam.orgName + '%'" />
+        			and t.NAME like #{p_orgName}
+        	</if>
+        	<if test="serteam.status != null and serteam.status !=-1 ">
+        			<bind name="p_status" value="serteam.status" />
+        			and st.STATUS = #{p_status}
+        	</if>
+        	<if test="serteam.orgId != null and serteam.orgId !=-1 ">
+        			<bind name="p_orgId" value="serteam.orgId" />
+        			and st.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="serteam.curOrgId != null and serteam.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="serteam.curOrgId" />
+        			and t.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	</where>
+			order by st.CR_TIME DESC
+		</if>
+	</select>
+	
+	<select id="getSerTeamName" resultMap="serTeamMap">
+		select st.ID, st.NAME, st.ORG_ID, t.NAME ORG_NAME,st.SUMMARY, st.CONTACT, st.CONTACT_TEL, st.FAX, st.EMAIL, st.PRINCIPAL, st.PRINCIPAL_TEL, 
+    st.ADDRESS, st.AREA_ID, st.CR_USER, st.CR_TIME, st.STATUS from SERTEAM st inner join org t on(st.ORG_ID = t.id)  where t.id in(select id from org start with id = #{OrgId} connect by prior id = parent_id) and st.status=1  order by st.CR_TIME
+	</select>
+	
+	<select id="getSerTeamAndVolNum" resultMap="serVOltatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select st.name,count(vol.id) VOLNUM from volunteer vol inner join serteam st on vol.service_team= st.id  
+	<if test="statistics != null">
+		<where>
+			<if test="statistics.areaType != null and statistics.areaType !=0">
+        		<bind name="p_areaType" value="statistics.areaType" />
+        			and ar.type= #{p_areaType}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and o.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+	</if>
+ 	group by st.name order by VOLNUM desc
+	</select>
+	
+	<select id="getSerByArea" resultMap="serVOltatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		 select ar.name, count(st.id) SERTEAMNUM,ar.code,ar.type from serteam st inner join org o on o.id= st.org_id 
+  inner join area ar on ar.id= o.area_id 
+	<if test="statistics != null">
+		<where>
+			<if test="statistics.areaType != null and statistics.areaType !=0">
+        		<bind name="p_areaType" value="statistics.areaType" />
+        			and ar.type= #{p_areaType}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and o.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+	</if>
+ 	group by ar.name,ar.code,ar.type 
+	</select>
+	
+	<select id="getNameAndHour" resultMap="serVOltatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+		 select * from (select st.name SERNAME,sum(ac.hours)SERVICEHOUR from serteam st inner join activity ac on ac.ser_id=st.id 
+		<where>
+			ac.status in (4,5,6,7)
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        			<bind name="p_orgId" value="statistics.orgId"/>
+        			and st.org_id =#{p_orgId}
+        	</if>
+        </where>
+ 	group by st.id ,st.name order by SERVICEHOUR desc)where rownum &lt; 21 
+	</select>
+	
+	<select id="judgeSerByOrg" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		 select count(id) from serteam where org_id=#{orgId} and status=1
+	</select>
+	
+</mapper>

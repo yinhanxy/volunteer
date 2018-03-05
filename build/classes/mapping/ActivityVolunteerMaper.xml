@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.ActivityVolunteerMapper" >
+  
+	<resultMap id="volunteerViewMap" type="com.topstar.volunteer.model.VolunteerView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	   	<result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serviceTeam" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="ACTIVITYVOLUNTEER_ID" property="activityVolunteerId" jdbcType="INTEGER"/>
+	    <result column="ACTIVITY_ID" property="activityId" jdbcType="INTEGER"/>
+	    <result column="STATUS" property="activityStatus" jdbcType="INTEGER"/>
+	    <result column="ACTIVITYSERVICETEAM" property="activityServiceTeam" jdbcType="VARCHAR" />
+	    <result column="ACTIVITY_ST" property="activitySt" jdbcType="TIMESTAMP" />
+	    <result column="ACTIVITY_ET" property="activityEt" jdbcType="TIMESTAMP" />
+	    <result column="ACTIVITYNAME" property="activityName" jdbcType="VARCHAR" />
+	    <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP"/>
+	    <result column="APPLY_RESULT" property="applyActivityStatus" jdbcType="VARCHAR"/>
+	    <result column="CHECK_STATUS" property="checkStatus" jdbcType="INTEGER"/>
+	    <result column="SERVICE_STAR" property="activityServiceStar" jdbcType="INTEGER"/>
+	    <result column="SER_HOURS" property="activityServiceHours" jdbcType="DOUBLE"/>
+	</resultMap>
+  
+  	<!-- 根据活动ID查询报名该活动的志愿者信息列表 -->
+	<select id="selectActivityVolunteersByActivityId" parameterType="java.lang.Long" resultMap="volunteerViewMap">
+		select v.id,av.activity_id,v.user_name,v.real_name,v.sex,v.mobile,v.address,s.name,av.apply_result from volunteer v 
+			right join activity_volunteer av on av.volunteer_id=v.id 
+			left join serteam s on v.service_team=s.id where av.activity_id=#{activityId}
+	</select>
+	
+	<!-- 根据活动ID查询已参加该活动的志愿者服务情况列表 -->
+	<select id="selectJoinVolunteersByActivityId" parameterType="java.lang.Long" resultMap="volunteerViewMap">
+		select v.id,av.id ACTIVITYVOLUNTEER_ID,av.activity_id,v.user_name,v.real_name,v.sex,v.mobile,av.check_status,av.service_star,av.ser_hours from volunteer v 
+			right join activity_volunteer av on av.volunteer_id=v.id 
+			where av.activity_id=#{activityId} and av.apply_result=1
+	</select>
+	
+	<!-- 根据活动ID查询参加该活动的志愿者信息列表 -->
+	<select id="selectVolunteersInfoByActivityId" parameterType="java.lang.Long" resultMap="volunteerViewMap">
+		select v.id,av.activity_id,v.user_name,v.real_name,v.sex,v.mobile,s.name,av.apply_time,av.ser_hours,av.service_star from volunteer v 
+			right join activity_volunteer av on av.volunteer_id=v.id 
+			left join serteam s on v.service_team=s.id where av.activity_id=#{activityId} and av.apply_result=1
+	</select>
+	
+	<!-- 根据志愿者ID查询该志愿者参加过的活动情况列表 -->
+	<select id="selectJoinedActivityByVolunteerId" parameterType="java.lang.Long" resultMap="volunteerViewMap">
+		select a.id,a.name activityName,a.activity_st,a.activity_et,a.status ,s.name activityServiceTeam,av.ser_hours,av.service_star,av.apply_time from activity a 
+			right join activity_volunteer av on a.id=av.activity_id 
+			left join serteam s on a.ser_id=s.id where av.volunteer_id=#{volunteerId} and av.apply_result=1
+	</select>
+	
+	<!-- 查询志愿者服务总时长 -->
+	<select id="selectVolSumHour" parameterType="java.lang.Long" resultType="java.lang.Double">
+		select sum(ser_hours) h from ACTIVITY_VOLUNTEER t where volunteer_id=#{volunteerId}
+	</select>
+</mapper>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.StarEvaluateMapper" >
+  
+	<resultMap id="starMap" type="com.topstar.volunteer.entity.StarEvaluate" >
+	  <id column="id" property="id" jdbcType="INTEGER" />
+	  <result column="VOLUNTEER_ID" property="volunteerId" jdbcType="INTEGER" />
+	  <result column="STAR" property="star" jdbcType="VARCHAR" />
+	  <result column="EVALUATE_TIME" property="evaluateTime" jdbcType="TIMESTAMP" />
+	  <result column="EVALUATE_USER" property="evaluateUser" jdbcType="VARCHAR" />
+	  <result column="EVALUATE_CONTENT" property="evaluateContent" jdbcType="INTEGER" />
+	</resultMap>
+  
+	<resultMap id="volunteerViewMap" type="com.topstar.volunteer.model.VolunteerView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="POLSTATUS" property="polstatus" jdbcType="VARCHAR" />
+	    <result column="POSTCODE" property="postcode" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="NAPLACE" property="naplace" jdbcType="VARCHAR" />
+	    <result column="EDUCATION" property="education" jdbcType="VARCHAR" />
+	    <result column="NAME" property="serviceTeam" jdbcType="INTEGER" />
+	    <result column="JOB_TITLE" property="jobTitle" jdbcType="VARCHAR" />
+	    <result column="DUTIES" property="duties" jdbcType="VARCHAR" />
+	    <result column="GRASCH" property="grasch" jdbcType="VARCHAR" />
+	    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+	    <result column="WORK" property="work" jdbcType="VARCHAR" />
+	    <result column="JOB_ADDRESS" property="jobAddress" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="SPECILITY" property="specility" jdbcType="VARCHAR" />
+	    <result column="SERVICE_EXPERIMENT" property="serviceExperiment" jdbcType="VARCHAR" />
+	    <result column="SERVICE_TIME" property="serviceTime" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="SERVICE_HOUR" property="serviceHour" jdbcType="INTEGER" />
+	    
+	    <result column="CHECK_STATUS" property="status" jdbcType="VARCHAR" />
+	    
+	    <result column="CERTID" property="certId" jdbcType="VARCHAR" />
+	    <result column="CERT_DATE" property="certDate" jdbcType="TIMESTAMP" />
+	    <result column="OPER_TIME" property="opertTime" jdbcType="TIMESTAMP" />
+	    <result column="OPERT_USER" property="opertUser" jdbcType="VARCHAR" />
+	    <result column="CHECK_YEAR" property="checkYear" jdbcType="VARCHAR" />
+	    <result column="CHECK_STATE" property="checkState" jdbcType="VARCHAR" />
+	    
+	    <result column="STAR_ID" property="volunteerStarId" jdbcType="INTEGER" />
+		<result column="STAR" property="star" jdbcType="VARCHAR" />
+		<result column="EVALUATE_TIME" property="evaluateTime" jdbcType="TIMESTAMP" />
+		<result column="EVALUATE_USER" property="evaluateUser" jdbcType="VARCHAR" />
+		<result column="EVALUATE_CONTENT" property="evaluateContent" jdbcType="INTEGER" />
+		<result column="IS_MANUAL" property="isManual" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap id="volunteerstatisticsMap" type="com.topstar.volunteer.model.Statistics" >
+	    <result column="STAR" property="star" jdbcType="VARCHAR" />
+	    <result column="VOLNUM" property="volNum" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 根据志愿者实体字段的值过滤查询志愿者服务星级评定的信息列表 -->
+	<select id="findVolunteerStarByEntity" resultMap="volunteerViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+		 select v.ID, v.USER_NAME, REAL_NAME,v.IDCARD,v.SERVICE_TEAM,SERVICE_HOUR,
+      	  	star.id STAR_ID,star.STAR,star.EVALUATE_TIME,star.EVALUATE_USER,s.id SERID,s.name
+    		from volunteer v left outer join 
+				(select temp.id,temp.star,temp.volunteer_id,temp.EVALUATE_TIME,temp.EVALUATE_USER
+					from (
+               				select s.id,s.volunteer_id,s.star,s.EVALUATE_TIME, s.EVALUATE_USER,
+             				row_number() OVER(PARTITION BY s.volunteer_Id ORDER BY s.EVALUATE_TIME desc) as row_flg   
+          					from star_evaluate s 
+          				  ) temp
+					where temp.row_flg  = '1'
+				) star
+			on v.id=star.volunteer_id left join serteam s on v.service_team=s.id left join org og on s.org_id=og.id 
+		<if test="volunteer != null">
+		<where>
+					v.STATUS=2
+			<if test="volunteer.realName != null and volunteer.realName!= ''">
+				<bind name="p_realName" value="'%' + volunteer.realName + '%'" />
+	        		and v.real_name like #{p_realName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and v.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile   != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile+ '%'" />
+	        		and v.mobile  like #{p_mobile}
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=0 and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceId" value="volunteer.serviceTeam" />
+	        		and v.SERVICE_TEAM = #{p_serviceId}
+	        </if>
+	        
+        	<if test="volunteer.star != null and volunteer.star !='' and volunteer.star != '-1'">
+        		<bind name="p_star" value="volunteer.star" />
+        			and star.star= #{p_star}
+        	</if>	
+        	<if test="volunteer.star != null and volunteer.star !='' and volunteer.star == '-1' ">
+        			and star.star is null
+        	</if>
+        	<if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 and volunteer.parentOrgId != 0">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<!-- 根据志愿者ID查询服务星级评定信息 -->
+	<select id="findAllVolunteerStarByVolunteerId" resultMap="volunteerViewMap" parameterType="java.lang.Long">
+		select v.ID, v.USER_NAME,v.REAL_NAME, v.IDCARD,v.SERVICE_TEAM, SERVICE_HOUR,
+	    star.id STAR_ID,star.STAR,star.EVALUATE_TIME,star.EVALUATE_USER,star.EVALUATE_CONTENT
+		from volunteer v right outer join star_evaluate star on v.id=star.volunteer_id where v.id=#{volunteerId}
+		order by star.evaluate_time desc
+	</select>
+	
+	<!-- 根据志愿者ID查询指定志愿者服务星级评定信息 -->
+	<select id="findLatestVolunteerStarByVolunteerId" resultMap="volunteerViewMap" parameterType="java.lang.Long">
+		select v.ID, v.USER_NAME,v.REAL_NAME, v.IDCARD,v.SERVICE_TEAM, SERVICE_HOUR,
+	    star.id STAR_ID,star.STAR,star.EVALUATE_TIME,star.EVALUATE_USER,star.EVALUATE_CONTENT
+		from volunteer v left outer join star_evaluate star on v.id=star.volunteer_id where v.id=#{volunteerId}
+		order by star.evaluate_time desc
+	</select>
+	
+	<!-- 根据志愿者星级评定的ID查询志愿者某一条星级评定的具体信息 -->
+	<select id="findStarEvaluateByStarEvaluateId" resultMap="volunteerViewMap" parameterType="java.lang.Long">
+		select v.ID,v.USER_NAME,v.REAL_NAME, v.IDCARD,v.SERVICE_TEAM, SERVICE_HOUR,
+	    star.id STAR_ID,star.STAR,star.EVALUATE_TIME,star.EVALUATE_USER,star.EVALUATE_CONTENT
+		from volunteer v right outer join star_evaluate star on v.id=star.volunteer_id where star.id=#{starEvaluateId}
+	</select>
+	
+	<select id="getStarByorgId" resultMap="volunteerstatisticsMap" parameterType="com.topstar.volunteer.model.Statistics">
+select sv.star star, sum(sv.volnum) volnum from (
+select nvl(se.star,0) star,count(vol.id) VOLNUM from ( 
+    select temp.id,temp.star,temp.volunteer_id,temp.EVALUATE_TIME,temp.EVALUATE_USER from (
+      select s.id,s.volunteer_id,s.star,s.EVALUATE_TIME, s.EVALUATE_USER,
+        row_number() OVER(PARTITION BY s.volunteer_Id ORDER BY s.EVALUATE_TIME desc) as row_flg   
+        from star_evaluate s) temp where temp.row_flg  = '1' ) se 
+ right join volunteer vol on se.volunteer_id=vol.id 
+  right join serteam st on st.id=vol.service_team
+	<if test="statistics != null">
+		<where>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        			<bind name="p_orgId" value="statistics.orgId"/>
+        			and st.org_id =#{p_orgId}
+        	</if>
+        </where>
+	</if>
+ 	  	group by se.star order by se.star)sv group by sv.star order by sv.star
+	</select>
+	
+	<select id="selectVolunteerServiceHoursAndStar" resultMap="volunteerViewMap">
+	select v.ID, v.USER_NAME, REAL_NAME,SERVICE_HOUR,star.STAR,star.IS_MANUAL 
+        from volunteer v left outer join 
+        (select temp.id,temp.star,temp.volunteer_id,temp.EVALUATE_TIME,temp.EVALUATE_USER,temp.IS_MANUAL
+          from (
+                       select s.id,s.volunteer_id,s.star,s.EVALUATE_TIME, s.EVALUATE_USER,s.IS_MANUAL,
+                     row_number() OVER(PARTITION BY s.volunteer_Id ORDER BY s.EVALUATE_TIME desc) as row_flg   
+                    from star_evaluate s 
+                    ) temp
+          where temp.row_flg  = '1'
+        ) star
+      on v.id=star.volunteer_id where v.STATUS=2 order by service_hour asc
+      <!-- 
+		select v.ID, v.USER_NAME, REAL_NAME,SERVICE_HOUR,star.STAR,star.IS_MANUAL 
+        from volunteer v left outer join 
+        (select temp.id,temp.star,temp.volunteer_id,temp.EVALUATE_TIME,temp.EVALUATE_USER
+          from (
+                       select s.id,s.volunteer_id,s.star,s.EVALUATE_TIME, s.EVALUATE_USER,
+                     row_number() OVER(PARTITION BY s.volunteer_Id ORDER BY s.EVALUATE_TIME desc) as row_flg   
+                    from star_evaluate s 
+                    ) temp
+          where temp.row_flg  = '1'
+        ) star
+    	on v.id=star.volunteer_id where v.STATUS=2 order by service_hour asc -->
+	</select>
+</mapper>

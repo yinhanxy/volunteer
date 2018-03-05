@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.LoggerMapper" >
+  <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.Logger" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="LOGGERTYPE" property="loggerType" jdbcType="INTEGER" />
+    <result column="OBJECTTYPE" property="objectType" jdbcType="INTEGER" />
+    <result column="OPERATETYPE" property="operateType" jdbcType="INTEGER" />
+    <result column="MESSAGE" property="message" jdbcType="VARCHAR" />
+    <result column="OPERATEUSER" property="operateUser" jdbcType="VARCHAR" />
+    <result column="OPERATETIME" property="operateTime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    <result column="IP" property="ip" jdbcType="VARCHAR" />
+    <result column="SUCCESS" property="success" jdbcType="INTEGER" />
+    <result column="OBJECTNAME" property="objectName" jdbcType="VARCHAR" />
+     <result column="OBJECTID" property="objectId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, LOGGERTYPE, OBJECTTYPE, OPERATETYPE, MESSAGE, OPERATEUSER, OPERATETIME, IP, SUCCESS,OBJECTNAME,OBJECTID
+  </sql>
+  
+   <select id="getLoggersThree" resultMap="BaseResultMap">
+	 SELECT  ID, LOGGERTYPE, OBJECTTYPE, OPERATETYPE, MESSAGE, OPERATEUSER, OPERATETIME, IP, SUCCESS,OBJECTNAME,OBJECTID 
+	 from logger where OPERATETIME &lt; add_months(SYSDATE,-3)
+   </select>
+   
+   <delete id="delLoggersThree">
+   		delete from logger where operatetime &lt; add_months(sysdate,-3)	
+   </delete>
+</mapper>

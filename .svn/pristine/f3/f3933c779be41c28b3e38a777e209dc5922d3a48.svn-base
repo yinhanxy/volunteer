@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.TurnTeamMapper" >
+  
+  	<resultMap id="turnTeamViewMap" type="com.topstar.volunteer.model.TurnTeamView" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="VOLUNTEER_ID" property="volunteerId" jdbcType="INTEGER" />
+	    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+	    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+	    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	    <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+	    <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	    <result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="SERVICE_HOUR" property="serviceHour" jdbcType="INTEGER" />
+	     
+	    <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP" />
+	    <result column="TARGET_ID" property="targetId" jdbcType="INTEGER" />
+	    <result column="TARGET_TEAM" property="targetTeam" jdbcType="VARCHAR" />
+	    <result column="TURN_PROPERTY" property="property" jdbcType="VARCHAR" />
+	    <result column="TURN_REASON" property="applyReason" jdbcType="VARCHAR" />
+	    
+	    <result column="SUSER_ID" property="suserId" jdbcType="INTEGER" />
+	    <result column="SDEAL_USER" property="sdealUser" jdbcType="VARCHAR" />
+	    <result column="SDEAL_TEAM" property="sdealTeam" jdbcType="VARCHAR" />
+	    <result column="SOURCE_ID" property="sourceTeamId" jdbcType="INTEGER" />
+	    <result column="SOURCE_TEAM" property="sourceTeam" jdbcType="VARCHAR" />
+	    <result column="SOURCE_TIME" property="sdealTime" jdbcType="TIMESTAMP" />
+	    <result column="SOURCE_RESULT" property="sourceResult" jdbcType="INTEGER" />
+	    <result column="SOURCE_OPINION" property="sourceOpinion" jdbcType="VARCHAR" />
+	    
+		<result column="TUSER_ID" property="tuserId" jdbcType="INTEGER" />
+	    <result column="TDEAL_USER" property="tdealUser" jdbcType="VARCHAR" />
+	    <result column="TDEAL_TEAM" property="tdealTeam" jdbcType="VARCHAR" />
+	    <result column="TARGET_TIME" property="tdealTime" jdbcType="TIMESTAMP" />
+	    <result column="TARGET_RESULT" property="targetResult" jdbcType="INTEGER" />
+	    <result column="TARGET_OPINION" property="targetOpinion" jdbcType="VARCHAR" />
+	    
+	    <result column="SERID" property="directSerId" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<!-- 根据志愿者实体字段的值过滤查询志愿者转队申请信息列表 -->
+	<select id="findTurnTeamApplysByEntity" resultMap="turnTeamViewMap" parameterType="com.topstar.volunteer.entity.Volunteer">
+	select vt.id id,VOLUNTEER_ID,REAL_NAME,vt.source_id,vt.source_team,vt.apply_time,vt.sdeal_user,vt.IDCARD,
+    vt.source_result,vt.target_result,target_id,
+    s.id SERID,s.org_id 
+    from (select distinct turn.id id,v.id VOLUNTEER_ID,v.USER_NAME,v.REAL_NAME, SEX, v.IDCARD, v.MOBILE,
+    v.SERVICE_TEAM, SERVICE_TIME, REMARK, REG_TIME,
+    turn.target_id,turn.target_team,turn.source_id,turn.source_team,turn.apply_time,turn.suser_id,turn.sdeal_user,turn.source_result,turn.tuser_id,turn.target_result
+    from volunteer v right outer join turn_serteam turn on v.id=turn.volunteer_id ) vt left join serteam s on vt.service_team=s.id left join org og on s.org_id=og.id
+		<if test="volunteer != null">
+		<where>
+			<if test="volunteer.userName != null and volunteer.userName != ''">
+				<bind name="p_realName" value="'%' + volunteer.userName + '%'" />
+	        		and vt.real_name like #{p_realName}
+	        </if>
+	        <if test="volunteer.idcard  != null and volunteer.idcard  != ''">
+				<bind name="p_idcard" value="'%' + volunteer.idcard + '%'" />
+	        		and vt.idcard  like #{p_idcard}
+	        </if>
+	        <if test="volunteer.mobile  != null and volunteer.mobile != ''">
+				<bind name="p_mobile" value="'%' + volunteer.mobile  + '%'" />
+	        		and vt.mobile  like #{p_mobile }
+	        </if>
+	        
+	        <if test="volunteer.serviceTeam  != null and volunteer.serviceTeam!=-1">
+				<bind name="p_serviceTeam" value="volunteer.serviceTeam" />
+	        		and vt.SERVICE_TEAM = #{p_serviceTeam}
+	        </if>
+	        <if test="volunteer.targetId != null and volunteer.targetId != -1">
+		        <bind name="p_targetId" value="volunteer.targetId" />
+		        	and vt.id not in (select id from TURN_SERTEAM where (source_result is null and target_id = #{p_targetId}) or (source_id !=#{p_targetId} and target_id != #{p_targetId})) 
+		    </if>
+	        <if test="volunteer.status != null and volunteer.status!= '' and volunteer.status!= -1">
+				<choose>
+		        	<when test="volunteer.status==1">
+		        		and vt.source_result is null 
+		        	</when>
+		        	<when test="volunteer.status==2">
+		        		and  vt.source_result =1 and vt.target_result is null
+		        	</when>
+		        	<when test="volunteer.status==3">
+		        		and vt.source_result =1 and vt.target_result =1
+		        	</when>
+		        	<when test="volunteer.status==4">
+		        		and (vt.source_result =2) or (vt.source_result =1 and vt.target_result =2)
+		        	</when>
+		        </choose>
+	        </if>
+	        <if test="volunteer.orgId != null and volunteer.orgId !=-1 ">
+        			<bind name="p_orgId" value="volunteer.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="volunteer.parentOrgId != null and volunteer.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="volunteer.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+		</if>
+	</select>
+	
+	<!-- 根据ID查询指定志愿者转队申请信息 -->
+	<select id="findTurnTeamApplyByTurnId" resultMap="turnTeamViewMap" parameterType="java.lang.Long">
+		select turn.ID, v.USER_NAME, REAL_NAME,SEX, v.IDCARD, BIRTHDAY,v.SERVICE_TEAM, 
+	    MOBILE, EMAIL, REG_TIME,v.SERVICE_HOUR,turn.*
+		from volunteer v right outer join turn_serteam turn on v.id=turn.volunteer_id  where turn.id=#{turnId} 
+	</select>
+	
+</mapper>

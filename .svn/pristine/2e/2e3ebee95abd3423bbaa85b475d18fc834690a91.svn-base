@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.UserMapper" >
+  
+	<resultMap id="userMap" type="com.topstar.volunteer.entity.User" >
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="user_pwd" property="userPwd" jdbcType="VARCHAR" />
+		<result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+		<result column="real_name" property="realName" jdbcType="VARCHAR" />
+		<result column="email" property="email" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="reg_time" property="regTime" jdbcType="TIMESTAMP" />
+		<result column="use_time" property="useTime" jdbcType="TIMESTAMP" />
+		<result column="cr_time" property="crTime" jdbcType="TIMESTAMP" />
+		<result column="cr_user" property="crUser" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  	<select id="findByEntity" resultMap="userMap" parameterType="com.topstar.volunteer.entity.User">
+		select id,user_name,nick_name,real_name,email,mobile,reg_time,use_time,cr_user,cr_time,status,remark 
+		from sys_user
+		<if test="user != null">
+		<where>
+			<if test="user.userName != null and user.userName != ''">
+				<bind name="p_userName" value="'%' + user.userName + '%'" />
+	        		user_name like #{p_userName}
+	        </if>
+	        <if test="user.realName != null and user.realName != ''">
+				<bind name="p_realName" value="'%' + user.realName + '%'" />
+	        		and real_name like #{p_realName}
+	        </if>
+        	<if test="user.status != null and user.status !=-1">
+        		<bind name="p_status" value="user.status" />
+        			and status = #{p_status}
+        	</if>	
+        </where>
+        
+		</if>
+	</select>
+	
+	<select id="findByUserName" resultMap="userMap">
+		select id,user_name,user_pwd,nick_name,real_name,email,mobile,reg_time,use_time,cr_user,cr_time,status,remark 
+		from sys_user
+		where user_name = #{userName} and status=1
+	</select>
+	
+	<select id="findByInfo" resultMap="userMap">
+		select id,user_name,user_pwd,nick_name,real_name,email,mobile,reg_time,use_time,cr_user,cr_time,status,remark 
+		from sys_user
+		where user_name = #{userName} and nick_name=#{nickName}
+	</select>
+	
+	<!-- 查询角色Id获取被赋予对应角色的用户信息 -->
+	<select id="findUsersByRoleId" resultMap="userMap" >
+		select u.id,u.user_name userName,u.status,u.real_name,u.email,u.reg_time,ru.CR_TIME crTime
+		from sys_user u inner join role_user ru
+		on (u.id = ru.user_id)
+		<where>
+			 ru.role_id = #{roleId}
+				
+			<if test="userName != null and userName != ''">
+				<bind name="p_userName" value="'%' + userName + '%'" />
+	        		and u.user_name like #{p_userName}
+	        </if>
+        	<if test="realName != null and realName != ''">
+        		<bind name="p_realName" value="'%' + realName + '%'" />
+        			and u.real_name like #{p_realName}
+        	</if>
+		</where>
+		ORDER BY crTime DESC,userName
+	</select>
+	
+	<!-- 查询机构Id获取该机构下的用户信息 -->
+	<select id="findUsersByOrgId" resultMap="userMap" >
+		select u.id,u.user_name userName,u.status,u.real_name,u.email,u.reg_time,ou.CR_TIME crTime
+		from sys_user u inner join org_user ou 
+		on (u.id = ou.user_id)
+			<where>
+				<if test="orgId != null">
+				 	ou.org_id = #{orgId}
+				</if>	
+				<if test="userName != null and userName != ''">
+					<bind name="p_userName" value="'%' + userName + '%'" />
+		        		and u.user_name like #{p_userName}
+		        </if>
+	        	<if test="realName != null and realName != ''">
+	        		<bind name="p_realName" value="'%' + realName + '%'" />
+	        			and u.real_name like #{p_realName}
+	        	</if>
+	        	
+			</where>
+		 
+		ORDER BY crTime DESC,userName
+	</select>
+	
+	<!-- 根据id修改用户密码 -->
+	<update id="editUserPwd">
+		update sys_user
+		set
+		user_pwd = #{userPwd}
+		where id = #{id}
+	</update>
+	
+	<!-- 获取不属于任何机构的用户信息列表 -->
+	<select id="findByEntityWithoutOrg" resultMap="userMap" parameterType="com.topstar.volunteer.entity.User">
+		select id,user_name,nick_name,real_name,email,mobile,reg_time,use_time,cr_user,cr_time,status,remark 
+		from sys_user
+		<if test="user != null">
+		<where> 
+			id not in (select user_id from org_user)
+			<if test="user.userName != null and user.userName != ''">
+				<bind name="p_userName" value="'%' + user.userName + '%'" />
+	        		and user_name like #{p_userName}
+	        </if>
+	        <if test="user.realName != null and user.realName != ''">
+				<bind name="p_realName" value="'%' + user.realName + '%'" />
+	        		and real_name like #{p_realName}
+	        </if>
+	        and status=1
+        </where>
+        
+		</if>
+	</select>
+	
+	<!-- 查询机构Id获取该机构下的用户信息 -->
+	<select id="getUsersByOrgId" resultMap="userMap" >
+		select u.id,u.user_name userName,u.status,u.real_name,u.email,u.reg_time,ou.CR_TIME crTime
+		from sys_user u inner join org_user ou on (u.id = ou.user_id)
+			<where>
+				<if test="orgId != null">
+				 	ou.org_id = #{orgId} and u.id not in (select user_id from team_user)
+				</if>	
+				<if test="user.userName != null and user.userName != ''">
+					<bind name="p_userName" value="'%' + user.userName + '%'" />
+		        		and u.user_name like #{p_userName}
+		        </if>
+	        	<if test="user.realName != null and user.realName != ''">
+	        		<bind name="p_realName" value="'%' + user.realName + '%'" />
+	        			and u.real_name like #{p_realName}
+	        	</if>
+	        	
+			</where>
+		 
+		ORDER BY crTime DESC,userName
+	</select>
+	
+	<select id="getUsersBySer" resultMap="userMap" >
+		select su.id,su.user_name,su.real_name,su.reg_time from sys_user su 
+		where su.id not in (select user_id from team_user)
+		<if test="user.userName != null and user.userName != ''">
+			<bind name="p_userName" value="'%' + user.userName + '%'" />
+        		and su.user_name like #{p_userName}
+        </if>
+       	<if test="user.realName != null and user.realName != ''">
+       		<bind name="p_realName" value="'%' + user.realName + '%'" />
+       			and su.real_name like #{p_realName}
+       	</if>
+		order by su.reg_time desc
+	</select>
+</mapper>

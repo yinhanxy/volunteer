@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topstar.volunteer.mapper.OrgUserMapper">
+  
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, ORG_ID, USER_ID, CR_USER, CR_TIME
+  </sql>
+  
+  <select id="findOrgIdByUserId" resultType="java.lang.Long">
+ 	 select org_id from org_user where user_id = #{userId}
+  </select>
+  
+  <!-- <delete id="delRoleUserUnderRole">
+  		DELETE FROM ROLE_USER WHERE ROLE_ID = #{roleId} 
+	  		and USER_ID in 
+	  	<foreach collection="list" open="(" item="userIds" close=")" separator=",">
+			userIds	  	
+	  	</foreach>
+  </delete> -->
+</mapper>

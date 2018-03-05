@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.ActivityMapper" >
+  
+	<resultMap id="activityMap" type="com.topstar.volunteer.entity.Activity" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="SER_ID" property="serId" jdbcType="INTEGER" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="REQUIREMENTS" property="requirements" jdbcType="VARCHAR" />
+	    <result column="ACTIVITY_CLASS" property="activityClass" jdbcType="INTEGER" />
+	    <result column="RECRUIT_NUM" property="recruitNum" jdbcType="INTEGER" />
+	    <result column="CONTACT_PERSON" property="contactPerson" jdbcType="VARCHAR" />
+	    <result column="CONTACT" property="contact" jdbcType="VARCHAR" />
+	    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+	    <result column="HOURS" property="hours" jdbcType="DOUBLE" />
+	    <result column="RECRUIT_ST" property="recruitSt" jdbcType="TIMESTAMP" />
+	    <result column="RECRUIT_ET" property="recruitEt" jdbcType="TIMESTAMP" />
+	    <result column="ACTIVITY_ST" property="activitySt" jdbcType="TIMESTAMP" />
+	    <result column="ACTIVITY_ET" property="activityEt" jdbcType="TIMESTAMP" />
+	    <result column="SUMMARY" property="summary" jdbcType="VARCHAR" />
+	    <result column="PUBLISHER" property="publisher" jdbcType="VARCHAR" />
+	    <result column="APPLY_NUM" property="applyNum" jdbcType="INTEGER" />
+	    <result column="RECRUIT_RANGE" property="recruitRange" jdbcType="INTEGER" />
+	    <result column="STATUS" property="status" jdbcType="INTEGER" />
+	    <result column="ACTIVITY_IMG" property="activityImg" jdbcType="VARCHAR" />
+	    <result column="CONTENT" property="activityClassDesc" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<resultMap id="statisticsActMap" type="com.topstar.volunteer.model.Statistics" >
+	    <result column="NAME" property="areaName" jdbcType="VARCHAR" />
+	    <result column="SERNAME" property="serTeamName" jdbcType="VARCHAR" />
+	    <result column="ACTIVITYNUM" property="activityNum" jdbcType="INTEGER" />
+	    <result column="CODE" property="areaCode" jdbcType="VARCHAR" />
+	    <result column="TYPE" property="areaType" jdbcType="INTEGER" />
+	    <result column="SERVICEHOUR" property="serTeamHour" jdbcType="INTEGER" />
+	    <result column="ET" property="year" jdbcType="VARCHAR" />
+	</resultMap>
+  	
+  	<select id="findByEntity" resultMap="activityMap">
+		select a.id,a.name,a.type,a.recruit_num,a.activity_st,a.activity_et,a.publisher,a.status
+	    from activity a left join serteam s on a.ser_id=s.id left join org og on s.org_id=og.id
+		<if test="activity != null">
+		<where>
+			<if test="activity.name != null and activity.name != ''">
+				<bind name="a_name" value="'%' + activity.name + '%'" />
+	        		a.NAME like #{a_name}
+	        </if>
+	        <if test="activity.publisher != null and activity.publisher != ''">
+				<bind name="a_publisher" value="'%' + activity.publisher + '%'" />
+	        		and a.PUBLISHER like #{a_publisher}
+	        </if>
+	        <if test="activity.status  != null and activity.status!= ''">
+				<bind name="a_status" value="activity.status" />
+	        		and a.status = #{a_status}
+	        </if>
+	        <if test="activity.activitySt != null">
+                and  a.activity_st >  #{activity.activitySt}
+	        </if>
+          	<if test="activity.activityEt  != null">
+	        		and a.activity_et &lt; #{activity.activityEt} 
+	        </if>
+	        <if test="activity.serId!= null and activity.serId!=-1">
+	        		and a.ser_id = #{activity.serId} 
+	        </if>
+	     	<if test="activity.orgId != null and activity.orgId !=-1 ">
+        			<bind name="p_orgId" value="activity.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="activity.parentOrgId != null and activity.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="activity.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<select id="findDoingAndCompletedByEntity" resultMap="activityMap">
+		select a.id,a.name,a.type,a.hours,a.activity_st,a.activity_et,a.status
+	    from activity a left join serteam s on a.ser_id=s.id left join org og on s.org_id=og.id
+		<if test="activity != null">
+		<where>
+			<if test="activity.name != null and activity.name != ''">
+				<bind name="a_name" value="'%' + activity.name + '%'" />
+	        		a.NAME like #{a_name}
+	        </if>
+	        <if test="activity.publisher != null and activity.publisher != ''">
+				<bind name="a_publisher" value="'%' + activity.publisher + '%'" />
+	        		and a.PUBLISHER like #{a_publisher}
+	        </if>
+	        <if test="activity.status  != null and activity.status  != ''">
+				<bind name="a_status" value="activity.status" />
+	        		and a.status = #{a_status}
+	        </if>
+	        <if test="activity.status  == null or activity.status  == ''">
+	        		and a.status IN (5,6,7)
+	        </if>
+	       <if test="activity.activitySt != null">
+                and  a.activity_st >  #{activity.activitySt}
+	        </if>
+          	<if test="activity.activityEt  != null">
+	        		and a.activity_et &lt; #{activity.activityEt} 
+	        </if>
+	        <if test="activity.serId!= null and activity.serId!=-1">
+	        		and a.ser_id = #{activity.serId} 
+	        </if>
+	        <if test="activity.orgId != null and activity.orgId !=-1 ">
+        			<bind name="p_orgId" value="activity.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="activity.parentOrgId != null and activity.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="activity.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+		<if test="activity == null">
+			<where>
+				a.status IN (5,6,7)
+			</where>
+		</if>
+	</select>
+	
+	<!-- 根据过滤条件查找处于招募报名状态中的活动列表 -->
+	<select id="findApplyingActivityByEntity" resultMap="activityMap">
+		select a.id,a.name,a.type,a.contact_person,a.activity_st,a.activity_et,a.recruit_num,a.apply_num,a.status
+	    from activity a  left join serteam s on a.ser_id=s.id left join org og on s.org_id=og.id
+		<if test="activity != null">
+		<where>
+			<if test="activity.name != null and activity.name != ''">
+				<bind name="a_name" value="'%' + activity.name + '%'" />
+	        		a.NAME like #{a_name}
+	        </if>
+	        <if test="activity.publisher != null and activity.publisher != ''">
+				<bind name="a_publisher" value="'%' + activity.publisher + '%'" />
+	        		and a.PUBLISHER like #{a_publisher}
+	        </if>
+	        <if test="activity.status  != null and activity.status  != ''">
+				<bind name="a_status" value="activity.status" />
+	        		and a.status = #{a_status}
+	        </if>
+	        <if test="activity.status  == null or activity.status  == ''">
+	        		and a.status IN (3,4)
+	        </if>
+	        <if test="activity.activitySt != null">
+                and  a.activity_st >  #{activity.activitySt}
+	        </if>
+          	<if test="activity.activityEt  != null">
+	        		and a.activity_et &lt; #{activity.activityEt} 
+	        </if>
+	        <if test="activity.serId!= null and activity.serId!=-1">
+	        		and a.ser_id = #{activity.serId} 
+	        </if>
+	      	<if test="activity.orgId != null and activity.orgId !=-1 ">
+        			<bind name="p_orgId" value="activity.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="activity.parentOrgId != null and activity.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="activity.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+		<if test="activity == null">
+			<where>
+				a.status IN (3,4) 
+			</where>
+		</if>
+	</select>
+	
+	<select id="findRecruitActivityListByEntity" resultMap="activityMap">
+		select a.id,a.name,a.ser_id,a.publisher,a.recruit_num,a.contact_person,a.contact,a.hours,a.address,a.summary,a.activity_class,a.recruit_range,a.requirements,c.content
+	      from activity a left join config c on a.activity_class=c.id left join serteam s on a.ser_id=s.id left join org og on s.org_id=og.id 
+		<if test="activity != null">
+		<where>
+			a.type=2 and a.status in (7,8)
+			<if test="activity.name != null and activity.name != ''">
+				<bind name="a_name" value="'%' + activity.name + '%'" />
+	        		and a.NAME like #{a_name}
+	        </if>
+	        <if test="activity.publisher != null and activity.publisher != ''">
+				<bind name="a_publisher" value="'%' + activity.publisher + '%'" />
+	        		and a.PUBLISHER like #{a_publisher}
+	        </if>
+	      	<if test="activity.orgId != null and activity.orgId !=-1 ">
+        			<bind name="p_orgId" value="activity.orgId" />
+        			and s.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="activity.parentOrgId != null and activity.parentOrgId !=-1 ">
+        			<bind name="p_parentOrgId" value="activity.parentOrgId" />
+        			and og.id in(select id from org start with id = #{p_parentOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+        
+		</if>
+	</select>
+	
+	<update id="toRecruitStatus">
+		update activity set STATUS=4 where sysdate >  RECRUIT_ST and  sysdate &lt;  RECRUIT_ET AND STATUS in (2,3)
+	</update>
+	
+	<update id="toWaitDoStatus">
+		update activity set STATUS=5 where sysdate >  RECRUIT_ET and  sysdate &lt;  ACTIVITY_ST AND STATUS in (2,3,4)
+	</update>
+	
+	<update id="toDoingStatus">
+		update activity set STATUS=6 where sysdate >  ACTIVITY_ST and  sysdate &lt;  ACTIVITY_ET AND STATUS in (2,3,4,5)
+	</update>
+	
+	<update id="toEndStatus">
+		update activity set STATUS=7 where sysdate >  ACTIVITY_ET AND STATUS in (2,3,4,5,6)
+	</update>
+	
+	<select id="getActivityArea" resultMap="statisticsActMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select ar.name, nvl(count(act.id),0)ACTIVITYNUM ,ar.code  from activity act inner join serteam st on act.ser_id=st.id 
+right join org o on o.id=st.org_id right join area ar on ar.id= o.area_id
+	<if test="statistics != null">
+		<where>
+			<if test="statistics.areaType != null and statistics.areaType !=0">
+        		<bind name="p_areaType" value="statistics.areaType" />
+        			and ar.type= #{p_areaType}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and o.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+	</if>
+ 	 group by ar.id,ar.name,ar.code
+	</select>
+	
+	<select id="getActivitySer" resultMap="statisticsActMap" parameterType="com.topstar.volunteer.model.Statistics">
+		 select * from (select st.id,st.name SERNAME, count(act.id)ACTIVITYNUM from serteam st left join activity act on act.ser_id= st.id
+	<if test="statistics != null">
+		<where>
+			<if test="statistics.areaType != null and statistics.areaType !=0">
+        		<bind name="p_areaType" value="statistics.areaType" />
+        			and ar.type= #{p_areaType}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>
+	</if>
+ 	  group by st.id,st.name order by ACTIVITYNUM desc )where rownum &lt; 21
+	</select>
+	
+	<select id="selActivityByYear" resultMap="statisticsActMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select et,count(id) ACTIVITYNUM from(select av.id,to_char(av.activity_et,'YYYY')et ,st.org_id from activity av inner join serteam st on av.ser_id = st.id
+		<where>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        		<bind name="p_orgId" value="statistics.orgId"/>
+        			and st.org_id =#{p_orgId}
+        	</if>
+        	and (av.status=6 or av.status=7)
+        </where>)
+ 	 group by et
+	</select>
+</mapper>

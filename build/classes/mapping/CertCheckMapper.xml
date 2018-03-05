@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.CertCheckMapper" >
+  
+	<resultMap id="certCheckMap" type="com.topstar.volunteer.entity.CertCheck" >
+		<id column="ID" property="id" jdbcType="INTEGER" />
+	    <result column="CERT_ID" property="certId" jdbcType="INTEGER"/>
+	    <result column="OPERT_USER" property="opertUser" jdbcType="VARCHAR"/>
+	    <result column="OPER_TIME" property="opertTime" jdbcType="TIMESTAMP"/>
+	    <result column="CHECK_YEAR" property="checkYear" jdbcType="VARCHAR"/>
+	    <result column="CHECK_STATE" property="checkState" jdbcType="VARCHAR"/>
+	    <result column="YEAR" property="editEnable" jdbcType="VARCHAR"/>
+	</resultMap>
+  
+  	<!-- 根据证书ID查询对应的所有年度审核记录信息列表 -->
+	<select id="selectCertChecksByCertId" parameterType="java.lang.Long" resultMap="certCheckMap">
+		select cc.ID,CERT_ID,OPERT_USER,OPER_TIME,CHECK_YEAR,CHECK_STATE,tl.year from cert_check cc 
+    		left join TIME_LIMIT tl on cc.check_year=tl.year and YEAR=EXTRACT(year FROM sysdate) and  sysdate > START_TIME and sysdate &lt; END_TIME
+    	where CERT_ID=#{certId}
+	</select>
+	
+</mapper>

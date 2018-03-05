@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.TeamUserMapper" >
+  <resultMap id="TeamUserMap" type="com.topstar.volunteer.entity.User" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="TEAM_ID" property="teamId" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+	<result column="real_name" property="realName" jdbcType="VARCHAR" />
+	<result column="email" property="email" jdbcType="VARCHAR" />
+	<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+	<result column="status" property="status" jdbcType="INTEGER" />
+	<result column="reg_time" property="regTime" jdbcType="TIMESTAMP" />
+	<result column="cr_time" property="crTime" jdbcType="TIMESTAMP" />
+	<result column="status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <select id="findByTeamId" resultMap="TeamUserMap">
+		select su.ID,su.reg_time, su.USER_NAME,su.NICK_NAME,su.REAL_NAME,su.EMAIL,su.MOBILE,su.STATUS from TEAM_USER tu inner join SYS_USER su on(tu.USER_ID = su.id)  
+		<if test="teamUser != null">
+		<where>
+			tu.TEAM_ID=#{teamUser.teamId}
+			<if test="user.userName != null and user.userName != ''">
+				<bind name="p_name" value="'%' + user.userName + '%'" />
+	        		and su.USER_NAME like #{p_name}
+	        </if>
+        	<if test="user.realName != null and user.realName != ''">
+        		<bind name="p_orgName" value="'%' + user.realName + '%'" />
+        			and su.REAL_NAME like #{p_orgName}
+        	</if>
+        	<if test="user.status != null and user.status !=-1 ">
+        			<bind name="p_status" value="user.status" />
+        			and su.STATUS = #{p_status}
+        	</if>
+        	</where>
+		</if>
+  </select>
+  
+  <select id="findByUserTeamId" resultMap="TeamUserMap">
+		select sur.ID,sur.USER_NAME,sur.REAL_NAME,sur.reg_time regTime from SYS_USER sur 
+		<if test="teamId != null">
+		<where>
+		sur.ID not in(select su.ID from TEAM_USER tu inner join SYS_USER su on(tu.USER_ID = su.id)  where tu.TEAM_ID=#{teamId})
+			<if test="user.userName != null and user.userName != ''">
+				<bind name="p_username" value="'%' + user.userName + '%'" />
+	        		and sur.USER_NAME like #{p_username}
+	        </if>
+        	<if test="user.realName != null and user.realName != ''">
+        		<bind name="p_realName" value="'%' + user.realName + '%'" />
+        			and sur.REAL_NAME like #{p_realName}
+        	</if>
+<!--         	<if test="user.status != null and user.status !=-1 "> -->
+<!--         			<bind name="p_status" value="user.status" /> -->
+<!--         			and sur.STATUS = #{p_status} -->
+<!--         	</if> -->
+        	</where>
+		</if>
+  </select>
+  
+  <select id="getAllUsers" resultMap="TeamUserMap">
+		select sur.ID,sur.USER_NAME,sur.REAL_NAME,sur.reg_time regTime from SYS_USER sur 
+		<if test="teamId != null">
+		<where>
+		sur.ID not in(select su.ID from TEAM_USER tu inner join SYS_USER su on(tu.USER_ID = su.id)  where tu.TEAM_ID=#{teamId})
+			<if test="user.userName != null and user.userName != ''">
+				<bind name="p_name" value="'%' + user.userName + '%'" />
+	        		and sur.USER_NAME like #{p_name}
+	        </if>
+        	<if test="user.realName != null and user.realName != ''">
+        		<bind name="p_orgName" value="'%' + user.realName + '%'" />
+        			and sur.REAL_NAME like #{p_orgName}
+        	</if>
+<!--         	<if test="user.status != null and user.status !=-1 "> -->
+<!--         			<bind name="p_status" value="user.status" /> -->
+<!--         			and sur.STATUS = #{p_status} -->
+<!--         	</if> -->
+        	</where>
+		</if>
+  </select>
+  
+  <select id="findTeamIdsByUserId" resultType="java.lang.Long">
+		select Team_ID from team_user where USER_ID =#{userId} 
+  </select>
+  
+  <delete id="delTeamUser">
+        delete from team_user where user_ID =#{userId} and team_ID =#{teamId}
+ </delete>
+ 
+ <select id="findTeamByUserId" resultType="com.topstar.volunteer.entity.SerTeam">
+ 	select s.id,s.name,s.org_id from serteam s right join team_user tu on s.id=tu.team_id where tu.user_id=#{userId}
+ </select>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.SiteMapper" >
+  
+	<resultMap id="siteMap" type="com.topstar.volunteer.entity.Site" >
+	  <id column="ID" property="id" jdbcType="INTEGER" />
+	  <result column="SITE_NAME" property="siteName" jdbcType="VARCHAR" />
+	  <result column="SITE_DESC" property="siteDesc" jdbcType="VARCHAR" />
+	  <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+	  <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+	  <result column="OPER_USER" property="operUser" jdbcType="VARCHAR" />
+	  <result column="OPER_TIME" property="operTime" jdbcType="TIMESTAMP" />
+	  <result column="STATUS" property="status" jdbcType="INTEGER" />
+	  <result column="ORDER_NO" property="order" jdbcType="INTEGER" />
+	</resultMap>
+  
+  	<!-- 查询所有站点信息 -->
+	<select id="findAllSite" resultMap="siteMap">
+		select ID,SITE_NAME,SITE_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO from SITE order by ORDER_NO ASC
+	</select>
+	
+	<!-- 添加栏目记录 -->
+	<!-- <insert id="addArea" parameterType="Channel">
+		insert into area(ID,SITE_ID,PARENT_ID,CHNL_NAME,CHNL_DESC,CR_USER,CR_TIME,OPER_USER,OPER_TIME,STATUS,ORDER_NO) values(SEQ_CHANNEL.nextval,#{siteId},#{parentId},#{chnlName},#{chnlDesc},#{crUser},${crTime},)
+	</insert>
+	
+	<update id="updateArea" parameterType="Channel">
+		update area set parent_id=#{parentId},name=#{name},type=#{type},code=#{code},order_no=#{id},remark=#{remark} where id=#{id}
+	</update>
+	 -->
+</mapper>

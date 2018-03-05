@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+	
+	<bean id="cacheManager"
+      class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+     	<property name="configLocation" value="classpath:ehcache.xml"/>
+     </bean>
+     
+     <bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+     
+     
+     <bean id="ConfigCache" class="com.topstar.volunteer.cache.impl.ConfigCacheImpl" init-method="init">
+     	<property name="cacheManager" ref="cacheManager"/>
+     	<property name="configDao" ref="configDaoImpl"/>
+     </bean>
+     
+     <bean id="roleCache" class="com.topstar.volunteer.cache.impl.RoleCacheImpl" init-method="init">
+     	<property name="cacheManager" ref="cacheManager"/>
+     	<property name="menuDao" ref="menuDaoImpl"/>
+     	<property name="roleDao" ref="roleDaoImpl"/>
+     </bean>
+     
+     <bean id="orgCache" class="com.topstar.volunteer.cache.impl.OrgCacheImpl" init-method="init">
+     	<property name="cacheManager" ref="cacheManager"/>
+     	<property name="orgDao" ref="orgDaoImpl"/>
+     </bean>
+     
+     <bean id="loginUserCache" class="com.topstar.volunteer.cache.impl.LoginUserCacheImpl" init-method="init">
+     	<property name="cacheManager" ref="cacheManager"/>
+     	<property name="menuDao" ref="menuDaoImpl"/>
+     	<property name="userDao" ref="userDaoImpl"/>
+     </bean>
+     
+     <bean id="channelCache" class="com.topstar.volunteer.cache.impl.ChannelCacheImpl" init-method="init">
+     	<property name="cacheManager" ref="cacheManager"/>
+     	<property name="siteDao" ref="siteDaoImpl"/>
+     	<property name="channelDao" ref="channelDaoImpl"/>
+     </bean>
+     
+     <bean id="shiroSessionCache" class="com.topstar.volunteer.shiro.cache.impl.ShiroSessionCacheImpl">
+     	<property name="cacheManager" ref="cacheManager"/>
+     </bean>
+     
+</beans>

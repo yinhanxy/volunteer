@@ -1,0 +1,470 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@ taglib prefix="tps" uri="/pageTag"%>
+<c:set var="webroot" value="${pageContext.request.contextPath}/" />
+<%-- 静态资源绝对地址 --%>
+<c:set var="sr" value="${pageContext.request.contextPath}/static/" />
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>湖北省文化志愿者管理系统</title> -->
+<jsp:include page="../../include/title.jsp"></jsp:include>
+
+<link href="${sr}css/font-awesome/css/linecons.css" rel="stylesheet">
+<link href="${sr}css/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet">
+<link href="${sr}css/bootstrap.min.css" rel="stylesheet">
+<link href="${sr}css/xenon.min.css" rel="stylesheet">
+<link href="${sr}css/base.css" rel="stylesheet">
+<link href="${sr}css/new.css" rel="stylesheet">
+<link href="${sr}css/iCheck/blue.css?v=1.0.2" rel="stylesheet">
+<!--[if lt IE 9]>
+      <script src="${sr}js/html5shiv.min.js"></script>
+      <script src="${sr}js/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">
+.yellow {
+	color: #E6BD1A;
+}
+
+.content-top {
+	font-size: 17px;
+	padding-bottom: 15px;
+	padding: 10px 15px;
+	color: #ffffff;
+}
+
+.systopcolor {
+	background-color: #cc3f44;
+}
+
+#sysInfo {
+	border-radius: 4px;
+	border: 1px solid #a40f37;
+}
+</style>
+</head>
+<body class="page-body skin-facebook">
+
+	<div class="page-container">
+		<jsp:include page="../../include/top.jsp"></jsp:include>
+		<!--  -->
+		<jsp:include page="../../include/left.jsp"></jsp:include>
+		<!--  -->
+		<div class="main-content" style="height: 100%;"
+			style="margin: 0px;padding: 0px;background-color: #fff;">
+			<div class="workspace-page">
+				<div class="page-title list-page">
+					<div class="title-env">
+						<ol class="breadcrumb bc-1" style="margin: 0px;">
+							<li><a href="${webroot}main.html" target="_top"><i
+									class="fa-home"></i>首页</a></li>
+							<li><a>统计分析</a></li>
+							<li class="active"><a
+								href="${webroot}statisticsActivity/list.html"><strong>活动统计</strong></a>
+							</li>
+						</ol>
+					</div>
+				</div>
+
+				<div class="table-panel panel">
+					<div class="col-sm-12">
+						<div id="main" style="width: 100%; height: 400px;"></div>
+					</div>
+
+					<div class="col-sm-12">
+						<div id="mid" style="width: 100%; height: 700px;"></div>
+					</div>
+
+
+					<div id="activityNumAndYear" class="col-sm-12"
+						style="margin-bottom: 50px">
+
+						<div class="dataTables" id="sysInfo">
+							<form class="form-inline" id="searchForm"
+								action="${webroot}activityNumAndYear/list.do">
+								<input type="hidden" name="page" id="currentPageInput" /> <input
+									type="hidden" name="rows" id="pageSizeInput" /> <input
+									type="hidden" name="orgId" id="orgId" />
+							</form>
+							<div class="content-top systopcolor">
+								<i class="fa-list-ul"></i> 活动数量统计(按年份)
+							</div>
+							<div
+								class="dataTables_wrapper form-inline dt-bootstrap no-footer" style="margin-top: 20px; margin-bottom: 10px;">
+								<table aria-describedby="example-2_info" role="grid"
+									id="roleList"
+									class="table table-bordered table-hover table-striped dataTable no-footer">
+									<thead>
+										<tr role="row">
+											<th width="60">序号</th>
+											<th style="text-align: center">年份</th>
+											<th style="text-align: center">活动数量(个)</th>
+										</tr>
+									</thead>
+									<tbody class="middle-align" id="pageData"></tbody>
+								</table>
+								<div class="row" style="display: none;" id="pageInfo"></div>
+								<div
+									style="margin-top: -20px; line-height: 50px; border: 1px solid #ddd; border-top: 0; display: none;"
+									id="messageDiv">
+									<p class="text-center">暂无数据</p>
+								</div>
+								<script id="templateData" type="text/html">
+									{{#  layui.each(d.list, function(index, item){ }}	
+			                        <tr role="row"
+			                            data-toggle="collapse">
+			                            <td align="center">{{(d.pageSize * (d.pageNum-1))+index+1}}</td>
+										<td style="text-align:center">
+			                                <div>
+			                                   <span>{{item.year}}</span>
+			                                </div>
+			                            </td>
+			                             <td style="text-align:center" >
+			                                <div>
+			                                   <span>{{item.activityNum }}</span>
+			                                </div>
+			                            </td>
+			                        </tr>
+									{{#  }); }}
+									</script>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<jsp:include page="../../include/footer.jsp"></jsp:include>
+
+	<script src="${sr}js/jquery.min.js" type="text/javascript"></script>
+	<script src="${sr}js/main.js" type="text/javascript"></script>
+	<script src="${sr}layui.js" type="text/javascript"></script>
+	<script src="${sr}js/config.js" type="text/javascript"></script>
+	<script src="${sr}js/baseutil.js" type="text/javascript"></script>
+	<script src="${sr}js/iCheck/icheck.min.js?v=1.0.2"
+		type="text/javascript"></script>
+	<script src="${sr}js/iCheck/custom.min.js?v=1.0.2"
+		type="text/javascript"></script>
+	<script src="${sr}js/echarts.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$(function() {
+			load();
+			$("#activityNumAndYear").hide();
+		});
+
+		function load() {
+			layui.use([ 'jquery', 'layer', 'laytpl' ], function() {
+				initMenu();
+				var layer = layui.layer;
+				layer.config({
+					extend : 'myskin/style.css'
+				});
+			});
+
+			// 基于准备好的dom，初始化echarts实例
+			var myChart = echarts.init(document.getElementById('main'));
+			var midChart = echarts.init(document.getElementById('mid'));
+
+			myChart.showLoading({
+				text : "图表数据正在努力加载..."
+			});
+
+			midChart.showLoading({
+				text : "图表数据正在努力加载..."
+			});
+
+			option = {
+				title : {
+					text : '活动数量统计',
+					subtext : '区域统计',
+					x : 'center'
+				},
+				tooltip : {
+					trigger : 'item',
+					formatter : "{b}(志愿活动数量    : {c})<br />占比 :  {d}%"
+				},
+				toolbox : {
+					feature : {
+						dataView : {
+							show : true,
+							readOnly : false
+						},
+						saveAsImage : {
+							show : true
+						}
+					}
+				},
+				legend : {
+					orient : 'vertical',
+					left : 'left',
+					data : [ '武汉市', '襄阳市', '荆州市', '宜昌市', '咸宁市', '黄冈市', '黄石市' ]
+				},
+				series : [ {
+					name : '志愿者人数统计',
+					type : 'pie',
+					radius : '55%',
+					center : [ '50%', '60%' ],
+					data : [ {
+						value : 335,
+						name : '武汉市'
+					}, {
+						value : 310,
+						name : '襄阳市'
+					}, {
+						value : 234,
+						name : '荆州市'
+					}, {
+						value : 135,
+						name : '宜昌市'
+					}, {
+						value : 135,
+						name : '咸宁市'
+					}, {
+						value : 135,
+						name : '黄冈市'
+					}, {
+						value : 335,
+						name : '黄石市'
+					} ],
+					itemStyle : {
+						emphasis : {
+							shadowBlur : 10,
+							shadowOffsetX : 0,
+							shadowColor : 'rgba(0, 0, 0, 0.5)'
+						}
+					}
+				} ]
+			};
+
+			midoption = {
+				title : {
+					text : '服务队活动数量统计',
+					subtext : '前20名统计',
+					x : 'center'
+				},
+				tooltip : {
+					trigger : 'axis',
+					axisPointer : {
+						type : 'cross',
+						crossStyle : {
+							color : '#999'
+						}
+					}
+				},
+				toolbox : {
+					feature : {
+						dataView : {
+							show : true,
+							readOnly : false
+						},
+						magicType : {
+							show : true,
+							type : [ 'line', 'bar' ]
+						},
+						restore : {
+							show : true
+						},
+						saveAsImage : {
+							show : true
+						}
+					}
+				},
+				legend : {
+					left : 'left',
+					data : [ '服务队活动数量' ]
+				},
+				xAxis : [ {
+					type : 'category',
+					name : '服务队名称',
+					data : [ '湖北省图书馆总队', '武汉美术馆愿者服务大队', '襄阳曲艺馆服务大队',
+							'湖北省美术馆服务总队', '恩施图书馆大队', '荆门美术馆大队', '荆州曲艺馆大队',
+							'仙桃图书馆大队', '天门美术馆大队', '黄石曲艺馆大队', '黄冈图书馆大队',
+							'武昌美术馆服务队', '汉口图书馆服务队', '襄州图书馆服务队', '十堰图书馆服务大队',
+							'云梦县图书馆志愿服务队', '湖北省曲艺馆服务总队', '谷城县美术馆服务队',
+							'兴山县图书馆服务队', '五峰美术馆服务队' ],
+					axisLabel : {
+						rotate : 75, //刻度旋转45度角
+						interval : 0,
+					},
+					axisPointer : {
+						type : 'shadow'
+					}
+				} ],
+				grid : { // 控制图的大小，调整下面这些值就可以，
+					x : 60,
+					x2 : 100,
+					y2 : 250,// y2可以控制 X轴跟Zoom控件之间的间隔，避免以为倾斜后造成 label重叠到zoom上
+				},
+				yAxis : [ {
+					type : 'value',
+					name : '数量',
+					min : 0,
+					minInterval : 1,
+					axisLabel : {
+						formatter : '{value} 个'
+					}
+				} ],
+				series : [
+						{
+							name : '服务队活动数量',
+							type : 'bar',
+							data : [ 300, 286, 256, 250, 220, 198, 188, 167,
+									154, 132, 120, 115, 109, 102, 92, 83, 73,
+									65, 54, 21 ]
+						},
+
+				]
+			};
+
+			//通过Ajax获取数据
+			var url = "${webroot}statisticsActivity/list.do";
+			postData(url, null, true, statisticsActResult);
+
+			var name;
+			var value;
+			//获取统计的回调函数
+			function statisticsActResult(data) {
+				if (data && data.success) {
+					var activityList = data.activityList;
+					var serActList = data.serActList;
+					var data = [];
+					var city = [];
+					var serTeam = [];
+					var stHour = [];
+
+					if (activityList && activityList.length > 0 && serActList
+							&& serActList.length > 0) {
+						var istreatAgency = activityList[0].istreatAgency;
+						if (istreatAgency) {
+							$("#main").hide();
+							$("#mid").hide();
+							var orgId = activityList[0].orgId;
+							$("#orgId").val(orgId);
+							postFormData("searchForm", true, searchResult);
+							$("#activityNumAndYear").show();
+						}
+						for (var i = 0; i < activityList.length; i++) {
+							var ob = new Object();
+							ob.value = activityList[i].activityNum;
+							ob.name = activityList[i].areaName;
+							city.push(ob.name);
+							data.push(ob);
+						}
+						option.legend.data = city;
+						option.series[0].data = data;
+						myChart.hideLoading();
+						myChart.setOption(option);
+
+						for (var i = 0; i < serActList.length; i++) {
+							var ob = new Object();
+							ob.value = serActList[i].activityNum;
+							ob.name = serActList[i].serTeamName;
+							serTeam.push(ob.name);
+							stHour.push(ob.value);
+						}
+						midoption.xAxis[0].data = serTeam;
+						midoption.series[0].data = stHour;
+						midChart.hideLoading();
+						midChart.setOption(midoption);
+					}
+				}
+			}
+
+		}
+
+		/**
+		 *切换每页显示的条数
+		 */
+		function changePage(obj, searchFormId) {
+			var pageSize = $(obj).val();
+			if (console.log) {
+				console.log("pageSize:" + pageSize);
+			}
+			$("#pageSizeInput").val(pageSize);
+			$("#currentPageInput").val(1);
+			postFormData(searchFormId, true, searchResult);
+		}
+
+		/**
+		 *翻页
+		 */
+		function setCurrentPage(currentPage, searchFormId) {
+			$("#currentPageInput").val(currentPage);
+			postFormData(searchFormId, true, searchResult);
+		}
+
+		/**
+		 *跳转到设置的页面
+		 */
+		function goPage(maxPage, searchFormId) {
+			var j_goPageText = $("#goPageText");
+			if (j_goPageText) {
+				try {
+					var currentPage = parseInt(j_goPageText.val());
+					if (currentPage > 0 && currentPage <= maxPage) {
+						$("#currentPageInput").val(currentPage);
+						postFormData(searchFormId, true, searchResult);
+					} else {
+						layer.msg("页码输入错误", {
+							time : 1000
+						});
+					}
+				} catch (e) {
+					layer.msg("页码输入错误", {
+						time : 1000
+					});
+				}
+			}
+		}
+
+		/**
+		 **回调函数
+		 */
+		function searchResult(data) {
+			$(".panel-disabled").hide();
+			$("#allcheck").prop("checked", false);
+			var laytpl = layui.laytpl;
+			var layer = layui.layer;
+			if (data.success) {
+				var page = data.page;
+				var list = page.list;
+				if (list && list.length > 0) {
+					var templateHtml = $("#templateData").html();
+					laytpl(templateHtml).render(page, function(result) {
+						$("#pageData").html(result);
+					});
+					var pageHtml = createPageInfo(page, "searchForm");
+					$("#pageInfo").html(pageHtml);
+					$("#pageInfo").show();
+					$("#messageDiv").hide();
+				} else {
+					$("#pageData").html("");
+					$("#pageInfo").html("");
+					$("#pageInfo").hide();
+					$("#messageDiv").show();
+				}
+			} else {
+				var message = data.message;
+				$("#pageData").html("");
+				$("#pageInfo").html("");
+				$("#pageInfo").hide();
+				layer.msg(message);
+			}
+		}
+
+		function loadPage() {
+			postFormData("searchForm", true, searchResult);
+		}
+	</script>
+</body>
+</html>

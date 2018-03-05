@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topstar.volunteer.mapper.DocumentMapper">
+  <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.Document">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="SITE_ID" jdbcType="INTEGER" property="siteId" />
+    <result column="CHANNEL_ID" jdbcType="INTEGER" property="channelId" />
+    <result column="ORG_ID" jdbcType="INTEGER" property="orgId" />
+    <result column="TITLE" jdbcType="VARCHAR" property="title" />
+    <result column="SUMMARY" jdbcType="VARCHAR" property="summary" />
+    <result column="KEYWORD" jdbcType="VARCHAR" property="keyword" />
+    <result column="SOURCE" jdbcType="VARCHAR" property="source" />
+    <result column="CONTENT" jdbcType="CLOB" property="content" />
+    <result column="HTMLCON" jdbcType="CLOB" property="htmlcon" />
+    <result column="AUTHOR" jdbcType="VARCHAR" property="author" />
+    <result column="DOC_ORDER" jdbcType="INTEGER" property="docOrder" />
+    <result column="REL_TIME" jdbcType="TIMESTAMP" property="relTime" />
+    <result column="PUB_TIME" jdbcType="TIMESTAMP" property="pubTime" />
+    <result column="LAST_UPDATE_TIME" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="LAST_UPDATE_USER" jdbcType="VARCHAR" property="lastUpdateUser" />
+    <result column="CR_USER" jdbcType="VARCHAR" property="crUser" />
+    <result column="CR_TIME" jdbcType="TIMESTAMP" property="crTime" />
+    <result column="SUB_TIME" jdbcType="TIMESTAMP" property="subTime" />
+    <result column="SUB_USER" jdbcType="VARCHAR" property="subUser" />
+    <result column="DEL_USER" jdbcType="VARCHAR" property="delUser" />
+    <result column="DEL_TIME" jdbcType="TIMESTAMP" property="delTime" />
+    <result column="HITS_COUNT" jdbcType="INTEGER" property="hitsCount" />
+    <result column="STATUS" jdbcType="INTEGER" property="status" />
+  </resultMap>
+  
+   <resultMap id="DocListMap" type="com.topstar.volunteer.entity.Document">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="CHANNEL_ID" jdbcType="INTEGER" property="channelId" />
+    <result column="ORG_ID" jdbcType="INTEGER" property="orgId" />
+    <result column="TITLE" jdbcType="VARCHAR" property="title" />
+    <result column="CR_USER" jdbcType="VARCHAR" property="crUser" />
+    <result column="CR_TIME" jdbcType="TIMESTAMP" property="crTime" />
+    <result column="DEL_TIME" jdbcType="TIMESTAMP" property="delTime" />
+    <result column="DEL_USER" jdbcType="VARCHAR" property="delUser" />
+    <result column="STATUS" jdbcType="INTEGER" property="status" />
+  </resultMap>
+  
+  <resultMap id="SimpleDocMap" type="com.topstar.volunteer.entity.Document">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="SITE_ID" jdbcType="INTEGER" property="siteId" />
+    <result column="CHANNEL_ID" jdbcType="INTEGER" property="channelId" />
+    <result column="ORG_ID" jdbcType="INTEGER" property="orgId" />
+    <result column="TITLE" jdbcType="VARCHAR" property="title" />
+    <result column="SUMMARY" jdbcType="VARCHAR" property="summary" />
+    <result column="KEYWORD" jdbcType="VARCHAR" property="keyword" />
+    <result column="SOURCE" jdbcType="VARCHAR" property="source" />
+    <result column="AUTHOR" jdbcType="VARCHAR" property="author" />
+    <result column="DOC_ORDER" jdbcType="INTEGER" property="docOrder" />
+    <result column="REL_TIME" jdbcType="TIMESTAMP" property="relTime" />
+    <result column="PUB_TIME" jdbcType="TIMESTAMP" property="pubTime" />
+    <result column="LAST_UPDATE_TIME" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="LAST_UPDATE_USER" jdbcType="VARCHAR" property="lastUpdateUser" />
+    <result column="CR_USER" jdbcType="VARCHAR" property="crUser" />
+    <result column="CR_TIME" jdbcType="TIMESTAMP" property="crTime" />
+    <result column="SUB_TIME" jdbcType="TIMESTAMP" property="subTime" />
+    <result column="SUB_USER" jdbcType="VARCHAR" property="subUser" />
+    <result column="DEL_USER" jdbcType="VARCHAR" property="delUser" />
+    <result column="DEL_TIME" jdbcType="TIMESTAMP" property="delTime" />
+    <result column="HITS_COUNT" jdbcType="INTEGER" property="hitsCount" />
+    <result column="STATUS" jdbcType="INTEGER" property="status" />
+  </resultMap>
+  
+  <!--  分页显示文档信息 (供超级管理员和省级管理机构查看文档)  -->
+  <select id="selectPageByAdmin" parameterType="com.topstar.volunteer.entity.Document" resultMap="DocListMap">
+   select id,channel_id,org_id,title,cr_time,cr_user,del_time,del_user,status 
+   from document 
+    <if test="doc != null">
+		<where>
+			<if test="doc.title != null and doc.title != ''">
+				<bind name="p_title" value="'%' + doc.title + '%'" />
+	        		(title like #{p_title}  or cr_user like #{p_title})
+	        </if>
+	        <if test="doc.status == null">
+	        		and status != -10
+	        </if>
+	        <if test="doc.status != null">
+        		   and status = #{doc.status}
+        	</if>
+	        <if test="doc.siteId != null">
+        			and site_id = #{doc.siteId}
+        	</if>
+        	<if test="doc.orgId != null">
+        			and org_id = #{doc.orgId}
+        	</if>
+        	<if test=" channelIds != null">
+        		 and channel_id in 
+        		 <foreach collection="channelIds" index="index" item="channelId" open="(" separator="," close=")">    
+            		#{channelId}
+        		</foreach>
+        	</if>
+        </where>
+		</if>
+  </select>
+  
+  <!--  二级、三级管理机构分页显示文档信息 ,可查看本机构及下属机构的所有文档 -->
+  <select id="manageOrgList" resultMap="DocListMap">
+   		select id,channel_id,org_id,title,cr_time,cr_user,del_time,del_user,status 
+		 from document 
+    	<if test="doc != null">
+			<where>
+				<if test="doc.title != null and doc.title != ''">
+					<bind name="p_title" value="'%' + doc.title + '%'" />
+		        		(title like #{p_title}  or cr_user like #{p_title})
+		        </if>
+		        <if test="doc.status == null">
+		        		and status != -10
+		        </if>
+	        	<if test="doc.status != null">
+	        		   and status = #{doc.status}
+	        	</if>
+	        	<if test="doc.siteId != null">
+	        			and site_id = #{doc.siteId}
+	        	</if>
+	        	<if test="channelIds != null">
+		       		   and channel_id in 
+		       		 <foreach collection="channelIds" index="index" item="channelId" open="(" separator="," close=")">    
+		           		#{channelId}
+		       		</foreach>
+		       	</if>
+	        	<if test="orgId != null and orgId !=-1 ">
+	        			and org_id in (select id from org start with id = #{orgId} connect by prior id = parent_id)
+	        	</if>
+	        </where>
+		</if>
+  </select>
+  
+  
+  <!-- 省级业务机构可查看同系统的所有机构的数据  -->
+  <select id="listBySystemCode" parameterType="com.topstar.volunteer.entity.Document" resultMap="DocListMap">
+   select id,channel_id,org_id,title,cr_time,cr_user,del_time,del_user,status 
+		 from document
+    <if test="doc != null">
+		<where>
+			<if test="doc.title != null and doc.title != ''">
+				<bind name="p_title" value="'%' + doc.title + '%'" />
+	        		(title like #{p_title}  or cr_user like #{p_title})
+	        </if>
+	        <if test="doc.status == null">
+	        		and status != -10
+	        </if>
+        	<if test="doc.status != null">
+        		   and status = #{doc.status}
+        	</if>
+        	<if test="doc.siteId != null">
+        			and site_id = #{doc.siteId}
+        	</if>
+        	<if test="doc.orgId != null">
+	        		and org_id = #{doc.orgId}
+	        </if>
+        	<if test="channelIds != null">
+		       		and channel_id in 
+		       		 <foreach collection="channelIds" index="index" item="channelId" open="(" separator="," close=")">    
+		           		#{channelId}
+		       		</foreach>
+		       	</if>
+        	<if test="doc.orgId == null and orgId != null and orgId !=-1 and systemCode != null ">
+        			and org_id in (select id from org where system_code = #{systemCode})
+        	</if>
+        </where>
+		</if>
+  </select>
+  
+  <!--  普通业务结构分页显示文档信息  -->
+  <select id="listByOrgId" parameterType="com.topstar.volunteer.entity.Document" resultMap="DocListMap">
+   select id,channel_id,org_id,title,cr_time,cr_user,del_time,del_user,status 
+   from document 
+    <if test="doc != null">
+		<where>
+			<if test="doc.title != null and doc.title != ''">
+				<bind name="p_title" value="'%' + doc.title + '%'" />
+	        		(title like #{p_title}  or cr_user like #{p_title})
+	        </if>
+	        <if test="doc.status == null">
+	        		and status != -10
+	        </if>
+        	<if test="doc.status != null">
+        		   and status = #{doc.status}
+        	</if>
+        	<if test="doc.siteId != null">
+        			and site_id = #{doc.siteId}
+        	</if>
+        	<if test="doc.orgId != null">
+        			and org_id = #{doc.orgId}
+        	</if>
+        	<if test="channelIds != null">
+        		 and channel_id in 
+        		 <foreach collection="channelIds" index="index" item="channelId" open="(" separator="," close=")">    
+            		#{channelId}
+        		</foreach>
+        	</if>
+        </where>
+		</if>
+  </select>
+  
+  <select id="findDocById" parameterType="java.lang.Long" resultMap="SimpleDocMap">
+  select id,site_id,channel_id,org_id,title,summary,keyword,source,author,doc_order,rel_time,pub_time,last_update_time,last_update_user,cr_user,cr_time,sub_time
+  sub_user,del_user,del_time,hits_count,status
+  from document where id = #{id}
+  </select>
+  
+  <select id="getMaxDocOrder"  resultType="java.lang.Long">
+  	select max(doc_order) from document where channel_id = #{channelId}
+  </select>
+  
+  <update id="setDocOrder">
+  	update document set doc_order = ${docOrder} where id = ${id}
+  </update>
+  
+  <update id="updateDocumentStatus">
+  update document set status = ${status} where id = ${id}
+  </update>
+  
+  <!--  将文档从回收站恢复 (将删除时间和删除用户字段值清空，将文档置为已否状态) -->
+  <update id="restoreDocument"  parameterType="com.topstar.volunteer.entity.Document">
+  update document set status = #{doc.status} ,del_time = null, del_user = null  where id = #{doc.id}
+  </update>
+  
+  <delete id="deleteByChannelId" parameterType="java.lang.Long">
+  delete from document where channel_id = #{channelId}
+  </delete>
+  
+   <select id="getDocNotice" parameterType="com.topstar.volunteer.entity.Channel" resultMap="BaseResultMap">
+	select * from(
+	select  doc.id ,doc.title,doc.cr_time,doc.cr_user from channel ch inner join document doc on doc.channel_id=ch.id where ch.id=#{channel.id} and doc.status=10
+	) where rownum &lt;= #{n}
+  </select>
+</mapper>

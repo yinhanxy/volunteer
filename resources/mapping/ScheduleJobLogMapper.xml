@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.topstar.volunteer.mapper.ScheduleJobLogMapper">
+	
+    <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.ScheduleJobLog" >
+	  <id column="LOG_ID" property="LogId" jdbcType="INTEGER" />
+	  <result column="JOB_ID" property="jobId" jdbcType="INTEGER" />
+	  <result column="BEAN_NAME" property="beanName" jdbcType="VARCHAR" />
+	  <result column="PARAMS" property="params" jdbcType="VARCHAR" />
+	  <result column="STATUS" property="status" jdbcType="INTEGER" />
+	  <result column="MESSAGE" property="message" jdbcType="VARCHAR" />
+	  <result column="USETIME" property="useTime" jdbcType="INTEGER" />
+	  <result column="BEGIN_TIME" property="beginTime" jdbcType="TIMESTAMP" />
+	  <result column="END_TIME" property="endTime" jdbcType="TIMESTAMP" />
+	  <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+     <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    LOG_ID,JOB_ID, BEAN_NAME, PARAMS, STATUS, MESSAGE,USETIME,BEGIN_TIME,END_TIME, CREATE_TIME
+    
+  </sql>
+</mapper>

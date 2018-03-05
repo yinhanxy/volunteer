@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.TrainVolMapper" >
+  <resultMap id="trainVolMap" type="com.topstar.volunteer.entity.TrainVol" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="TRAIN_ID" property="trainId" jdbcType="INTEGER" />
+    <result column="VOL_ID" property="volId" jdbcType="INTEGER" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+     <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+     <result column="IDCARD" property="idcard" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, TRAIN_ID, VOL_ID, CR_USER, CR_TIME
+  </sql>
+  
+   <select id="findByTrainId" resultMap="trainVolMap">
+		select tv.ID ,vt.USER_NAME,vt.REAL_NAME ,vt.SEX , vt.MOBILE , vt.IDCARD from train_vol  tv inner join volunteer vt on tv.VOL_ID=vt.ID
+		where tv.TRAIN_ID=#{trainId}
+		 order by tv.CR_TIME DESC
+	</select>
+	
+	<select id="findVolIdsByTrainId" resultType="java.lang.Long">
+		select vol_id from train_vol where train_id  =#{trainId} 
+  </select>
+	
+</mapper>

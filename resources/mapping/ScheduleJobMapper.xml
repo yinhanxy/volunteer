@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.topstar.volunteer.mapper.ScheduleJobMapper">
+	
+    <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.ScheduleJob" >
+	  <id column="JOB_ID" property="jobId" jdbcType="INTEGER" />
+	   <result column="JOB_NAME" property="jobName" jdbcType="VARCHAR" />
+	  <result column="BEAN_NAME" property="beanName" jdbcType="VARCHAR" />
+	  <result column="PARAMS" property="params" jdbcType="VARCHAR" />
+	  <result column="CRON_EXPRESSION" property="cronExpression" jdbcType="VARCHAR" />
+	  <result column="STATUS" property="status" jdbcType="INTEGER" />
+	  <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	  <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	  <result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+	  <result column="NEXT_FIRE_TIME" property="nextFireTime" jdbcType="TIMESTAMP" />
+	   <result column="PRE_FIRE_TIME" property="preFireTime" jdbcType="TIMESTAMP" />
+	  <result column="FIRE_COUNT" property="fireCount" jdbcType="INTEGER" />
+	</resultMap>
+     <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    JOB_ID,JOB_NAME BEAN_NAME, PARAMS, CRON_EXPRESSION, STATUS, REMARK, CREATE_TIME, CREATE_USER,PRE_FIRE_TIME,NEXT_FIRE_TIME,FIRE_COUNT
+  </sql>
+  
+     <update id="updateBatch"> 
+		UPDATE SCHEDULE_JOB SET STATUS = #{status} WHERE JOB_ID IN
+		<foreach item="jobId" collection="list"  open="(" separator="," close=")">
+			#{jobId}
+		</foreach>
+	</update>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topstar.volunteer.mapper.RoleUserMapper">
+  <resultMap id="BaseResultMap" type="com.topstar.volunteer.entity.RoleUser">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="USER_ID" jdbcType="INTEGER" property="userId" />
+    <result column="ROLE_ID" jdbcType="INTEGER" property="roleId" />
+    <result column="CR_USER" jdbcType="VARCHAR" property="crUser" />
+    <result column="CR_TIME" jdbcType="TIMESTAMP" property="crTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, USER_ID, ROLE_ID, CR_USER, CR_TIME
+  </sql>
+  
+  <select id="findRoleIdsByUserId" resultType="java.lang.Long">
+ 	 select role_id from role_user where user_id = #{userId}
+  </select>
+  
+  <!-- <delete id="delRoleUserUnderRole">
+  		DELETE FROM ROLE_USER WHERE ROLE_ID = #{roleId} 
+	  		and USER_ID in 
+	  	<foreach collection="list" open="(" item="userIds" close=")" separator=",">
+			userIds	  	
+	  	</foreach>
+  </delete> -->
+</mapper>

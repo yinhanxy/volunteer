@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.TrRecordMapper" >
+  <resultMap id="trRecordMap" type="com.topstar.volunteer.entity.TrRecord" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="TR_NAME" property="trName" jdbcType="VARCHAR" />
+    <result column="TR_CONTENT" property="trContent" jdbcType="VARCHAR" />
+    <result column="PRESENTER" property="presenter" jdbcType="VARCHAR" />
+    <result column="TR_TIME" property="trTime" jdbcType="VARCHAR" />
+    <result column="TR_LOCATION" property="trLocation" jdbcType="VARCHAR" />
+    <result column="TEAM_ID" property="teamId" jdbcType="INTEGER" />
+    <result column="TEAM_NAME" property="teamName" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="INTEGER" />
+    <result column="PRINCIPAL" property="principal" jdbcType="VARCHAR" />
+    <result column="PRINCIPAL_TEL" property="principalTel" jdbcType="VARCHAR" />
+    <result column="CONTACT" property="contact" jdbcType="VARCHAR" />
+    <result column="CONTACT_TEL" property="contactTel" jdbcType="VARCHAR" />
+    <result column="CR_USER" property="crUser" jdbcType="VARCHAR" />
+    <result column="CR_TIME" property="crTime" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="TRAINVOLNUM" property="trainVolNum" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="statisticsActMap" type="com.topstar.volunteer.model.Statistics">
+  	 <result column="RECORDNUM" property="recordNum" jdbcType="INTEGER" />
+  	 <result column="CT" property="year" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    ID, TR_NAME, TR_CONTENT, PRESENTER, TR_TIME, TR_LOCATION, TEAM_ID, PRINCIPAL, PRINCIPAL_TEL, 
+    CONTACT, CONTACT_TEL, CR_USER, CR_TIME, STATUS
+  </sql>
+  
+  <select id="findByEntity" resultMap="trRecordMap">
+		select  tr.ID, tr.PRINCIPAL, st.NAME TEAM_NAME, st.ORG_ID ORG_ID,tr.TR_NAME, tr.TR_TIME, tr.CR_USER, 
+		tr.STATUS from tr_record  tr inner join serteam st on tr.TEAM_ID=st.ID inner join org og on st.org_id=og.id
+		<if test="trRecord != null">
+		<where>
+			<if test="trRecord.trName!= null and trRecord.trName != ''">
+				<bind name="p_name" value="'%' + trRecord.trName + '%'" />
+	        		and tr.TR_NAME like #{p_name}
+	        </if>
+        	<if test="trRecord.principal != null and trRecord.principal != ''">
+        		<bind name="p_principal" value="'%' + trRecord.principal + '%'" />
+        			and tr.PRINCIPAL like #{p_principal}
+        	</if>
+        	<if test="trRecord.teamName != null and trRecord.teamName != ''">
+        		<bind name="p_teamName" value="'%' + trRecord.teamName + '%'" />
+        			and st.NAME like #{p_teamName}
+        	</if>
+        	<if test="trRecord.status != null and trRecord.status !=-1 ">
+        			<bind name="p_status" value="trRecord.status" />
+        			and tr.STATUS = #{p_status}
+        	</if>
+        	<if test="trRecord.orgId != null and trRecord.orgId !=-1 ">
+        			<bind name="p_orgId" value="trRecord.orgId" />
+        			and st.ORG_ID = #{p_orgId}
+        	</if>
+        	<if test="trRecord.curOrgId != null and trRecord.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="trRecord.curOrgId" />
+        			and og.id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        	</where>
+			order by tr.CR_TIME DESC
+		</if>
+	</select>
+	
+	<select id="findTrRecordsByVolunteerId" resultMap="trRecordMap">
+		select  tr.ID, tr.PRINCIPAL, st.NAME TEAM_NAME,tr.TR_NAME, tr.TR_TIME, tr.CR_USER, 
+		tr.STATUS from tr_record  tr right join train_vol tv on  tv.train_id=tr.id 
+		left join serteam st on tr.TEAM_ID=st.ID where tv.vol_id=#{volunteerId}
+	</select>
+	
+	<!-- 得到每年的培训数量 如："2017","4" -->
+	<select id="selTrRecordByYear" resultMap="statisticsActMap" parameterType="com.topstar.volunteer.model.Statistics">
+		select count(id)RECORDNUM,ct from 
+	(select tr.id,to_char(tr.cr_time,'YYYY')ct ,st.org_id from tr_record tr inner join serteam st on st.id=tr.team_id
+	<where>
+        	<if test="statistics.orgId != null and statistics.orgId !=-1 ">
+        		<bind name="p_orgId" value="statistics.orgId"/>
+        			and st.org_id =#{p_orgId}
+        	</if>
+        	<if test="statistics.curOrgId != null and statistics.curOrgId !=-1 ">
+        			<bind name="p_curOrgId" value="statistics.curOrgId"/>
+        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+        	</if>
+        </where>)
+	group by ct
+	</select>
+	
+	<!-- 查询培训统计信息,如：(培训名称,参加培训人数,培训时间) -->
+	<select id="getTrRecordStatis" resultMap="trRecordMap">
+		select tr.tr_name,tr.cr_time,tr.tr_time,count(vol_id)TRAINVOLNUM from tr_record tr inner join serteam st on st.id=tr.team_id inner join train_vol tv on tv.train_id=tr.id 
+		<if test="trRecord != null">
+			<where>
+				<if test="trRecord.orgId != null and trRecord.orgId !=-1 ">
+	        			<bind name="p_orgId" value="trRecord.orgId" />
+	        			and st.ORG_ID = #{p_orgId}
+	        	</if>
+	        	<if test="trRecord.curOrgId != null and trRecord.curOrgId !=-1 ">
+	        			<bind name="p_curOrgId" value="trRecord.curOrgId" />
+	        			and st.org_id in(select id from org start with id = #{p_curOrgId} connect by prior id = parent_id)
+	        	</if>
+			</where>
+		</if>
+		group by tv.train_id, tr.tr_name,tr.cr_time,tr.tr_time
+		order by tr.cr_time desc
+	</select>
+</mapper>

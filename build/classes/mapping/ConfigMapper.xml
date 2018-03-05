@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.topstar.volunteer.mapper.ConfigMapper" >
+  
+  <resultMap id="configMap" type="com.topstar.volunteer.entity.Config" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="TYPE" property="type" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="ORDER_NO" property="orderNo" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="columns" >
+    ID, TYPE, NAME, CONTENT, REMARK,ORDER_NO
+  </sql>
+  
+  <select id="loadConfigs" parameterType="map" resultMap="configMap">
+  		select
+  		<include refid="columns"/>
+  		from config 
+  		<where>
+  			<if test="name!=null">
+  				name = #{name}
+  			</if>
+  			<if test="type!=null">
+  				and type = #{type}
+  			</if>
+  		</where>
+  </select>
+  
+  <select id="findByEntity" resultMap="configMap" parameterType="com.topstar.volunteer.entity.Config">
+		select ID,NAME,CONTENT,TYPE,REMARK,ORDER_NO 
+		from CONFIG
+		<if test="config != null">
+		<where>
+			<if test="config.type!= null and config.type!= ''">
+				<bind name="p_configType" value="config.type " />
+	        		and TYPE = #{p_configType}
+	        </if>
+			<if test="config.name!= null and config.name!= ''">
+				<bind name="p_configName" value="'%' + config.name+ '%'" />
+	        		and NAME like #{p_configName}
+	        </if>
+        	<if test="config.remark!= null and config.remark!= ''">
+        		<bind name="p_remark" value="'%' + config.remark + '%'" />
+        			and REMARK like #{p_remark}
+        	</if>
+        	</where>
+			order by ID DESC
+		</if>
+	</select>
+	
+	<!-- 获取配置的所有类型 -->
+	<select id="findAllConfigTypes" resultType="String">
+		 select distinct type from CONFIG
+	</select>
+  
+</mapper>
